@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='使用单网口树莓派作为软路由（OpenWrt），搭配带VLAN功能的交换机实现内外网隔离'><title>宿舍千兆局域网组网方案（共享校园网、科学上网）</title>
+
+<link rel='canonical' href='http://blog.yrvsyh.top/p/%E5%AE%BF%E8%88%8D%E5%8D%83%E5%85%86%E5%B1%80%E5%9F%9F%E7%BD%91%E7%BB%84%E7%BD%91%E6%96%B9%E6%A1%88%E5%85%B1%E4%BA%AB%E6%A0%A1%E5%9B%AD%E7%BD%91%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='宿舍千兆局域网组网方案（共享校园网、科学上网）'>
+<meta property='og:description' content='使用单网口树莓派作为软路由（OpenWrt），搭配带VLAN功能的交换机实现内外网隔离'>
+<meta property='og:url' content='http://blog.yrvsyh.top/p/%E5%AE%BF%E8%88%8D%E5%8D%83%E5%85%86%E5%B1%80%E5%9F%9F%E7%BD%91%E7%BB%84%E7%BD%91%E6%96%B9%E6%A1%88%E5%85%B1%E4%BA%AB%E6%A0%A1%E5%9B%AD%E7%BD%91%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/'>
+<meta property='og:site_name' content='Yrvsyh&#39;s Blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='vlan' /><meta property='article:tag' content='openwrt' /><meta property='article:tag' content='网络' /><meta property='article:tag' content='软路由' /><meta property='article:published_time' content='2020-12-12T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2020-12-12T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="宿舍千兆局域网组网方案（共享校园网、科学上网）">
+<meta name="twitter:description" content="使用单网口树莓派作为软路由（OpenWrt），搭配带VLAN功能的交换机实现内外网隔离">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <h2 class="article-title">
+        <a href="/p/%E5%AE%BF%E8%88%8D%E5%8D%83%E5%85%86%E5%B1%80%E5%9F%9F%E7%BD%91%E7%BB%84%E7%BD%91%E6%96%B9%E6%A1%88%E5%85%B1%E4%BA%AB%E6%A0%A1%E5%9B%AD%E7%BD%91%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/">宿舍千兆局域网组网方案（共享校园网、科学上网）</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        使用单网口树莓派作为软路由（OpenWrt），搭配带VLAN功能的交换机实现内外网隔离
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">2020-12-12</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 2 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <h1 id="单网口方案">单网口方案</h1>
+<h2 id="路由器配置">路由器配置</h2>
+<p>由于只有一个网卡，LAN流量与WAN流量都需要经过此网卡，需要对LAN流量和WAN流量进行隔离，所以选择使用vlan划分网络。</p>
+<p>OpenWrt基于linux系统，可直接对物理网卡划分vlan：假设物理网卡为eth0，新建虚拟网卡eth0.1、eth0.2即可分别接收vlan1、valn2的数据包。</p>
+<p>将网卡eth0.1分为LAN组（或与无线网卡桥接），eth0.2分为WAN组。</p>
+<h4 id="wan口">WAN口</h4>
+<p>配置接口的ip获取方式为DHCP方式，自动获取校园网分配的ip。</p>
+<h4 id="lan口">LAN口</h4>
+<p>设置静态ip地址，如192.168.0.254。打开该接口上的DHCP服务器，为宿舍内网设备提供ip分配。</p>
+<h4 id="mentohust插件">MentoHUST插件</h4>
+<p>启用该服务（支持锐捷，其他协议自行尝试）。</p>
+<p>接口选择eth0.2，即与校园网相连的接口。</p>
+<h4 id="防火墙">防火墙</h4>
+<p>打开IP动态伪装</p>
+<p><figure 
+	
+		class="gallery-image" 
+		style="
+			flex-grow: 1199; 
+			flex-basis: 2878px"
+	>
+	<a href="/p/%E5%AE%BF%E8%88%8D%E5%8D%83%E5%85%86%E5%B1%80%E5%9F%9F%E7%BD%91%E7%BB%84%E7%BD%91%E6%96%B9%E6%A1%88%E5%85%B1%E4%BA%AB%E6%A0%A1%E5%9B%AD%E7%BD%91%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/firewall-config.png" data-size="1463x122">
+		<img src="/p/%E5%AE%BF%E8%88%8D%E5%8D%83%E5%85%86%E5%B1%80%E5%9F%9F%E7%BD%91%E7%BB%84%E7%BD%91%E6%96%B9%E6%A1%88%E5%85%B1%E4%BA%AB%E6%A0%A1%E5%9B%AD%E7%BD%91%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/firewall-config.png"
+			width="1463"
+			height="122"
+			srcset="/p/%E5%AE%BF%E8%88%8D%E5%8D%83%E5%85%86%E5%B1%80%E5%9F%9F%E7%BD%91%E7%BB%84%E7%BD%91%E6%96%B9%E6%A1%88%E5%85%B1%E4%BA%AB%E6%A0%A1%E5%9B%AD%E7%BD%91%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/firewall-config_huff50834162bc976829afc77a0a9b6f5d_21187_480x0_resize_box_3.png 480w, /p/%E5%AE%BF%E8%88%8D%E5%8D%83%E5%85%86%E5%B1%80%E5%9F%9F%E7%BD%91%E7%BB%84%E7%BD%91%E6%96%B9%E6%A1%88%E5%85%B1%E4%BA%AB%E6%A0%A1%E5%9B%AD%E7%BD%91%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/firewall-config_huff50834162bc976829afc77a0a9b6f5d_21187_1024x0_resize_box_3.png 1024w"
+			loading="lazy"
+			alt="打开IP动态伪装">
+	</a>
+	
+	<figcaption>打开IP动态伪装</figcaption>
+	
+</figure></p>
+<h2 id="交换机配置">交换机配置</h2>
+<p>使用交换机划分vlan，连接路由器的端口与连接校园网的端口作为一组vlan，连接局域网上设备的端口作为另一组vlan。</p>
+<p><figure 
+	
+		class="gallery-image" 
+		style="
+			flex-grow: 839; 
+			flex-basis: 2014px"
+	>
+	<a href="/p/%E5%AE%BF%E8%88%8D%E5%8D%83%E5%85%86%E5%B1%80%E5%9F%9F%E7%BD%91%E7%BB%84%E7%BD%91%E6%96%B9%E6%A1%88%E5%85%B1%E4%BA%AB%E6%A0%A1%E5%9B%AD%E7%BD%91%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/vlan-config.png" data-size="663x79">
+		<img src="/p/%E5%AE%BF%E8%88%8D%E5%8D%83%E5%85%86%E5%B1%80%E5%9F%9F%E7%BD%91%E7%BB%84%E7%BD%91%E6%96%B9%E6%A1%88%E5%85%B1%E4%BA%AB%E6%A0%A1%E5%9B%AD%E7%BD%91%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/vlan-config.png"
+			width="663"
+			height="79"
+			srcset="/p/%E5%AE%BF%E8%88%8D%E5%8D%83%E5%85%86%E5%B1%80%E5%9F%9F%E7%BD%91%E7%BB%84%E7%BD%91%E6%96%B9%E6%A1%88%E5%85%B1%E4%BA%AB%E6%A0%A1%E5%9B%AD%E7%BD%91%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/vlan-config_hu236e002cfe66560754dfcda394a5c7b3_9490_480x0_resize_box_3.png 480w, /p/%E5%AE%BF%E8%88%8D%E5%8D%83%E5%85%86%E5%B1%80%E5%9F%9F%E7%BD%91%E7%BB%84%E7%BD%91%E6%96%B9%E6%A1%88%E5%85%B1%E4%BA%AB%E6%A0%A1%E5%9B%AD%E7%BD%91%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/vlan-config_hu236e002cfe66560754dfcda394a5c7b3_9490_1024x0_resize_box_3.png 1024w"
+			loading="lazy"
+			alt="VLAN配置">
+	</a>
+	
+	<figcaption>VLAN配置</figcaption>
+	
+</figure></p>
+<p><figure 
+	
+		class="gallery-image" 
+		style="
+			flex-grow: 166; 
+			flex-basis: 398px"
+	>
+	<a href="/p/%E5%AE%BF%E8%88%8D%E5%8D%83%E5%85%86%E5%B1%80%E5%9F%9F%E7%BD%91%E7%BB%84%E7%BD%91%E6%96%B9%E6%A1%88%E5%85%B1%E4%BA%AB%E6%A0%A1%E5%9B%AD%E7%BD%91%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/pvid-config.png" data-size="699x421">
+		<img src="/p/%E5%AE%BF%E8%88%8D%E5%8D%83%E5%85%86%E5%B1%80%E5%9F%9F%E7%BD%91%E7%BB%84%E7%BD%91%E6%96%B9%E6%A1%88%E5%85%B1%E4%BA%AB%E6%A0%A1%E5%9B%AD%E7%BD%91%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/pvid-config.png"
+			width="699"
+			height="421"
+			srcset="/p/%E5%AE%BF%E8%88%8D%E5%8D%83%E5%85%86%E5%B1%80%E5%9F%9F%E7%BD%91%E7%BB%84%E7%BD%91%E6%96%B9%E6%A1%88%E5%85%B1%E4%BA%AB%E6%A0%A1%E5%9B%AD%E7%BD%91%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/pvid-config_hu93c08fab95d1cb887c0a5856fea1c0a8_30329_480x0_resize_box_3.png 480w, /p/%E5%AE%BF%E8%88%8D%E5%8D%83%E5%85%86%E5%B1%80%E5%9F%9F%E7%BD%91%E7%BB%84%E7%BD%91%E6%96%B9%E6%A1%88%E5%85%B1%E4%BA%AB%E6%A0%A1%E5%9B%AD%E7%BD%91%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/pvid-config_hu93c08fab95d1cb887c0a5856fea1c0a8_30329_1024x0_resize_box_3.png 1024w"
+			loading="lazy"
+			alt="PVID配置">
+	</a>
+	
+	<figcaption>PVID配置</figcaption>
+	
+</figure></p>
+<p>配置说明：</p>
+<ul>
+<li>
+<p>数据包流入流出tagged端口时保留携带的tag号。</p>
+</li>
+<li>
+<p>数据包流入流出untagged端口时清除携带的tag号。</p>
+</li>
+<li>
+<p>PVID为无tag的数据包进入某一端口后带上的tag号。</p>
+</li>
+</ul>
+<p>此时1-5号端口为局域网端口，6、8号端口可连接校园网，7号端口连接路由器。</p>
+<p>现在假设1号端口连接PC，8号连接校园网，分析数据包路径如下：</p>
+<h3 id="pc的出站流量">PC的出站流量</h3>
+<pre tabindex="0"><code>PC（无tag） -&gt;
+入1号端口（tag 1） --
+此数据包只能从VLAN1的成员端口流出（即1-5、7） -&gt;
+出7号端口（tag1保留） -&gt;
+路由器eht0.1（tag1） -&gt;
+路由器处理 -&gt;
+路由器eht0.2（tag2） -&gt;
+入7号端口（tag2保留） --
+此数据包只能从VLAN2的成员端口流出（即6-8） -&gt;
+出8号端口（无tag） -&gt;
+校园网
+</code></pre><h3 id="pc的入站流量">PC的入站流量</h3>
+<pre tabindex="0"><code>校园网 -&gt;
+入8号端口（tag2） --
+此数据包只能从VLAN2的成员端口流出（即6-8） -&gt;
+出7号端口（tag2保留） -&gt;
+路由器eht0.2（tag2） -&gt;
+路由器处理 -&gt;
+路由器eht0.1（tag1） -&gt;
+入7号端口（tag1保留） --
+此数据包只能从VLAN1的成员端口流出（即1-5、7） -&gt;
+出1号端口（无tag） -&gt;
+PC
+</code></pre><h1 id="多网口方案">多网口方案</h1>
+<p>参考单网口方案，忽略交换机部分，正确配置WAN口即可。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/vlan/">vlan</a>
+        
+            <a href="/tags/openwrt/">openwrt</a>
+        
+            <a href="/tags/%E7%BD%91%E7%BB%9C/">网络</a>
+        
+            <a href="/tags/%E8%BD%AF%E8%B7%AF%E7%94%B1/">软路由</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+</aside>
+
+     
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="yrvsyh/yrvsyh.github.io"
+        issue-term="pathname"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+        setUtterancesTheme(document.documentElement.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2021 Yrvsyh&#39;s Blog
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.5.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li><a href="#路由器配置">路由器配置</a>
+      <ol>
+        <li>
+          <ol>
+            <li><a href="#wan口">WAN口</a></li>
+            <li><a href="#lan口">LAN口</a></li>
+            <li><a href="#mentohust插件">MentoHUST插件</a></li>
+            <li><a href="#防火墙">防火墙</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+    <li><a href="#交换机配置">交换机配置</a>
+      <ol>
+        <li><a href="#pc的出站流量">PC的出站流量</a></li>
+        <li><a href="#pc的入站流量">PC的入站流量</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

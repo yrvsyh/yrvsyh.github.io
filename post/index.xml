@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on Yrvsyh&#39;s Blog</title>
+    <link>http://blog.yrvsyh.top/post/</link>
+    <description>Recent content in Posts on Yrvsyh&#39;s Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Sat, 12 Dec 2020 00:00:00 +0000</lastBuildDate><atom:link href="http://blog.yrvsyh.top/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Archlinux系统备份恢复技巧</title>
+      <link>http://blog.yrvsyh.top/p/archlinux%E7%B3%BB%E7%BB%9F%E5%A4%87%E4%BB%BD%E6%81%A2%E5%A4%8D%E6%8A%80%E5%B7%A7/</link>
+      <pubDate>Sat, 12 Dec 2020 00:00:00 +0000</pubDate>
+      
+      <guid>http://blog.yrvsyh.top/p/archlinux%E7%B3%BB%E7%BB%9F%E5%A4%87%E4%BB%BD%E6%81%A2%E5%A4%8D%E6%8A%80%E5%B7%A7/</guid>
+      <description>推荐使用Btrfs作为根文件系统，XFS作为/home的文件系统 非btrfs文件系统（无COW支持） 方案思路 每次进行备份时若在上一次备份中找</description>
+    </item>
+    
+    <item>
+      <title>宿舍千兆局域网组网方案（共享校园网、科学上网）</title>
+      <link>http://blog.yrvsyh.top/p/%E5%AE%BF%E8%88%8D%E5%8D%83%E5%85%86%E5%B1%80%E5%9F%9F%E7%BD%91%E7%BB%84%E7%BD%91%E6%96%B9%E6%A1%88%E5%85%B1%E4%BA%AB%E6%A0%A1%E5%9B%AD%E7%BD%91%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/</link>
+      <pubDate>Sat, 12 Dec 2020 00:00:00 +0000</pubDate>
+      
+      <guid>http://blog.yrvsyh.top/p/%E5%AE%BF%E8%88%8D%E5%8D%83%E5%85%86%E5%B1%80%E5%9F%9F%E7%BD%91%E7%BB%84%E7%BD%91%E6%96%B9%E6%A1%88%E5%85%B1%E4%BA%AB%E6%A0%A1%E5%9B%AD%E7%BD%91%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/</guid>
+      <description>单网口方案 路由器配置 由于只有一个网卡，LAN流量与WAN流量都需要经过此网卡，需要对LAN流量和WAN流量进行隔离，所以选择使用vlan划分</description>
+    </item>
+    
+    <item>
+      <title>x64平台gcc内联汇编打印函数调用堆栈</title>
+      <link>http://blog.yrvsyh.top/p/x64%E5%B9%B3%E5%8F%B0gcc%E5%86%85%E8%81%94%E6%B1%87%E7%BC%96%E6%89%93%E5%8D%B0%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E5%A0%86%E6%A0%88/</link>
+      <pubDate>Thu, 10 Dec 2020 00:00:00 +0000</pubDate>
+      
+      <guid>http://blog.yrvsyh.top/p/x64%E5%B9%B3%E5%8F%B0gcc%E5%86%85%E8%81%94%E6%B1%87%E7%BC%96%E6%89%93%E5%8D%B0%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E5%A0%86%E6%A0%88/</guid>
+      <description>gcc内联汇编格式： asm ( assembler template : output operands /* optional */ : input operands /* optional */ : list of clobbered registers /* optional */ ); #include &amp;lt;stdio.h&amp;gt; void printStack() { unsigned long int *rbp = 0; unsigned long int *rsp = 0; // 当前rbp为上一层rsp-2，存放</description>
+    </item>
+    
+    <item>
+      <title>剑指offer刷题笔记</title>
+      <link>http://blog.yrvsyh.top/p/%E5%89%91%E6%8C%87offer%E5%88%B7%E9%A2%98%E7%AC%94%E8%AE%B0/</link>
+      <pubDate>Sat, 28 Nov 2020 00:00:00 +0000</pubDate>
+      
+      <guid>http://blog.yrvsyh.top/p/%E5%89%91%E6%8C%87offer%E5%88%B7%E9%A2%98%E7%AC%94%E8%AE%B0/</guid>
+      <description>数组中重复的数字 在一个长度为 n 的数组 nums 里的所有数字都在 0～n-1 的范围内。数组中某些数字是重复的，但不知道有几个数字重复了，也不知道每个数字</description>
+    </item>
+    
+    <item>
+      <title>利用git hooks实现文章同步与hugo自动构建</title>
+      <link>http://blog.yrvsyh.top/p/%E5%88%A9%E7%94%A8git-hooks%E5%AE%9E%E7%8E%B0%E6%96%87%E7%AB%A0%E5%90%8C%E6%AD%A5%E4%B8%8Ehugo%E8%87%AA%E5%8A%A8%E6%9E%84%E5%BB%BA/</link>
+      <pubDate>Wed, 24 Jun 2020 00:00:00 +0000</pubDate>
+      
+      <guid>http://blog.yrvsyh.top/p/%E5%88%A9%E7%94%A8git-hooks%E5%AE%9E%E7%8E%B0%E6%96%87%E7%AB%A0%E5%90%8C%E6%AD%A5%E4%B8%8Ehugo%E8%87%AA%E5%8A%A8%E6%9E%84%E5%BB%BA/</guid>
+      <description>关于git hooks的介绍： 服务器端钩子 除了客户端钩子，作为系统管理员，你还可以使用若干服务器端的钩子对项目强制执行各种类型的策略。 这些钩子</description>
+    </item>
+    
+  </channel>
+</rss>

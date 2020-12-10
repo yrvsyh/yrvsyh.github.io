@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>git-hook on Yrvsyh&#39;s Blog</title>
+    <link>http://blog.yrvsyh.top/tags/git-hook/</link>
+    <description>Recent content in git-hook on Yrvsyh&#39;s Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Wed, 24 Jun 2020 00:00:00 +0000</lastBuildDate><atom:link href="http://blog.yrvsyh.top/tags/git-hook/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>利用git hooks实现文章同步与hugo自动构建</title>
+      <link>http://blog.yrvsyh.top/p/%E5%88%A9%E7%94%A8git-hooks%E5%AE%9E%E7%8E%B0%E6%96%87%E7%AB%A0%E5%90%8C%E6%AD%A5%E4%B8%8Ehugo%E8%87%AA%E5%8A%A8%E6%9E%84%E5%BB%BA/</link>
+      <pubDate>Wed, 24 Jun 2020 00:00:00 +0000</pubDate>
+      
+      <guid>http://blog.yrvsyh.top/p/%E5%88%A9%E7%94%A8git-hooks%E5%AE%9E%E7%8E%B0%E6%96%87%E7%AB%A0%E5%90%8C%E6%AD%A5%E4%B8%8Ehugo%E8%87%AA%E5%8A%A8%E6%9E%84%E5%BB%BA/</guid>
+      <description>关于git hooks的介绍： 服务器端钩子 除了客户端钩子，作为系统管理员，你还可以使用若干服务器端的钩子对项目强制执行各种类型的策略。 这些钩子</description>
+    </item>
+    
+  </channel>
+</rss>

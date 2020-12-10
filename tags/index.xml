@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Tags on Yrvsyh&#39;s Blog</title>
+    <link>http://blog.yrvsyh.top/tags/</link>
+    <description>Recent content in Tags on Yrvsyh&#39;s Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Sat, 12 Dec 2020 00:00:00 +0000</lastBuildDate><atom:link href="http://blog.yrvsyh.top/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>archlinux</title>
+      <link>http://blog.yrvsyh.top/tags/archlinux/</link>
+      <pubDate>Sat, 12 Dec 2020 00:00:00 +0000</pubDate>
+      
+      <guid>http://blog.yrvsyh.top/tags/archlinux/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>openwrt</title>
+      <link>http://blog.yrvsyh.top/tags/openwrt/</link>
+      <pubDate>Sat, 12 Dec 2020 00:00:00 +0000</pubDate>
+      
+      <guid>http://blog.yrvsyh.top/tags/openwrt/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>vlan</title>
+      <link>http://blog.yrvsyh.top/tags/vlan/</link>
+      <pubDate>Sat, 12 Dec 2020 00:00:00 +0000</pubDate>
+      
+      <guid>http://blog.yrvsyh.top/tags/vlan/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>备份</title>
+      <link>http://blog.yrvsyh.top/tags/%E5%A4%87%E4%BB%BD/</link>
+      <pubDate>Sat, 12 Dec 2020 00:00:00 +0000</pubDate>
+      
+      <guid>http://blog.yrvsyh.top/tags/%E5%A4%87%E4%BB%BD/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>网络</title>
+      <link>http://blog.yrvsyh.top/tags/%E7%BD%91%E7%BB%9C/</link>
+      <pubDate>Sat, 12 Dec 2020 00:00:00 +0000</pubDate>
+      
+      <guid>http://blog.yrvsyh.top/tags/%E7%BD%91%E7%BB%9C/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>软路由</title>
+      <link>http://blog.yrvsyh.top/tags/%E8%BD%AF%E8%B7%AF%E7%94%B1/</link>
+      <pubDate>Sat, 12 Dec 2020 00:00:00 +0000</pubDate>
+      
+      <guid>http://blog.yrvsyh.top/tags/%E8%BD%AF%E8%B7%AF%E7%94%B1/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>gcc</title>
+      <link>http://blog.yrvsyh.top/tags/gcc/</link>
+      <pubDate>Thu, 10 Dec 2020 00:00:00 +0000</pubDate>
+      
+      <guid>http://blog.yrvsyh.top/tags/gcc/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>函数调用堆栈</title>
+      <link>http://blog.yrvsyh.top/tags/%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E5%A0%86%E6%A0%88/</link>
+      <pubDate>Thu, 10 Dec 2020 00:00:00 +0000</pubDate>
+      
+      <guid>http://blog.yrvsyh.top/tags/%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E5%A0%86%E6%A0%88/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>汇编</title>
+      <link>http://blog.yrvsyh.top/tags/%E6%B1%87%E7%BC%96/</link>
+      <pubDate>Thu, 10 Dec 2020 00:00:00 +0000</pubDate>
+      
+      <guid>http://blog.yrvsyh.top/tags/%E6%B1%87%E7%BC%96/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>剑指offer</title>
+      <link>http://blog.yrvsyh.top/tags/%E5%89%91%E6%8C%87offer/</link>
+      <pubDate>Sat, 28 Nov 2020 00:00:00 +0000</pubDate>
+      
+      <guid>http://blog.yrvsyh.top/tags/%E5%89%91%E6%8C%87offer/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>git-hook</title>
+      <link>http://blog.yrvsyh.top/tags/git-hook/</link>
+      <pubDate>Wed, 24 Jun 2020 00:00:00 +0000</pubDate>
+      
+      <guid>http://blog.yrvsyh.top/tags/git-hook/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>hugo</title>
+      <link>http://blog.yrvsyh.top/tags/hugo/</link>
+      <pubDate>Wed, 24 Jun 2020 00:00:00 +0000</pubDate>
+      
+      <guid>http://blog.yrvsyh.top/tags/hugo/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

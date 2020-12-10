@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='LeetCode上刷剑指offer刷题库时的简要记录'><title>剑指offer刷题笔记</title>
+
+<link rel='canonical' href='http://blog.yrvsyh.top/p/%E5%89%91%E6%8C%87offer%E5%88%B7%E9%A2%98%E7%AC%94%E8%AE%B0/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='剑指offer刷题笔记'>
+<meta property='og:description' content='LeetCode上刷剑指offer刷题库时的简要记录'>
+<meta property='og:url' content='http://blog.yrvsyh.top/p/%E5%89%91%E6%8C%87offer%E5%88%B7%E9%A2%98%E7%AC%94%E8%AE%B0/'>
+<meta property='og:site_name' content='Yrvsyh&#39;s Blog'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='剑指offer' /><meta property='article:published_time' content='2020-11-28T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2020-12-13T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="剑指offer刷题笔记">
+<meta name="twitter:description" content="LeetCode上刷剑指offer刷题库时的简要记录">
+    </head>
+    <body class="
+    article-page has-toc
+">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex 
+    
+        extended
+    
+">
+    
+        <div id="article-toolbar">
+            <a href="/" class="back-home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+                <span>返回</span>
+            </a>
+        </div>
+    
+<main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <h2 class="article-title">
+        <a href="/p/%E5%89%91%E6%8C%87offer%E5%88%B7%E9%A2%98%E7%AC%94%E8%AE%B0/">剑指offer刷题笔记</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        LeetCode上刷剑指offer刷题库时的简要记录
+    </h3>
+    
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">2020-11-28</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 8 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+</div>
+</header>
+
+    <section class="article-content">
+    <h3 id="数组中重复的数字">数组中重复的数字</h3>
+<p>在一个长度为 n 的数组 nums 里的所有数字都在 0～n-1 的范围内。数组中某些数字是重复的，但不知道有几个数字重复了，也不知道每个数字重复了几次。请找出数组中任意一个重复的数字。</p>
+<ul>
+<li>根据空间时间分析。空间：排序；时间：哈希表，字典。</li>
+</ul>
+<h3 id="二维数组中的查找">二维数组中的查找</h3>
+<p>在一个 n * m 的二维数组中，每一行都按照从左到右递增的顺序排序，每一列都按照从上到下递增的顺序排序。请完成一个高效的函数，输入这样的一个二维数组和一个整数，判断数组中是否含有该整数。</p>
+<ul>
+<li>
+<p>根据对角线判断，考虑nm不相同的情况。</p>
+</li>
+<li>
+<p>右上角作为起点，相当于二叉搜索树。</p>
+</li>
+</ul>
+<h3 id="替换空格">替换空格</h3>
+<p>请实现一个函数，把字符串 <code>s</code> 中的每个空格替换成&quot;%20&quot;。</p>
+<ul>
+<li>
+<p>java版直接使用replace。</p>
+</li>
+<li>
+<p>遍历字符串，分情况追加字符。</p>
+</li>
+</ul>
+<h3 id="从尾到头打印链表">从尾到头打印链表</h3>
+<p>输入一个链表的头节点，从尾到头反过来返回每个节点的值（用数组返回）。</p>
+<ul>
+<li>
+<p>先找到尾指针，计算出链表的长度，分配相应长度的数组，反向遍历数组同时正向遍历链表，逐个插入。</p>
+</li>
+<li>
+<p>正向遍历链表入栈，出栈存入数组。</p>
+</li>
+</ul>
+<h3 id="重建二叉树">重建二叉树</h3>
+<p>输入某二叉树的前序遍历和中序遍历的结果，请重建该二叉树。假设输入的前序遍历和中序遍历的结果中都不含重复的数字。</p>
+<ul>
+<li>
+<p>前序遍历第一个为根节点，根据根节点在中序遍历的位置找到左子树和右子树，递归左右子树。</p>
+<blockquote>
+<ul>
+<li>
+<p>时间复杂度：<em>O</em>(<em>n</em>)。对于每个节点都有创建过程以及根据左右子树重建过程。</p>
+</li>
+<li>
+<p>空间复杂度：<em>O</em>(<em>n</em>)。存储整棵树的开销。</p>
+</li>
+</ul>
+</blockquote>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="k">class</span> <span class="nc">Solution</span> <span class="p">{</span>
+<span class="k">private</span><span class="o">:</span>
+    <span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">findIndex</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="k">public</span><span class="o">:</span>
+    <span class="n">TreeNode</span><span class="o">*</span> <span class="n">buildTree</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">preorder</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">inorder</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">inorder</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+            <span class="n">findIndex</span><span class="p">[</span><span class="n">inorder</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span> <span class="c1">//建立数组值到索引的映射
+</span><span class="c1"></span>        <span class="k">return</span> <span class="nf">build</span><span class="p">(</span><span class="n">preorder</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">inorder</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="n">TreeNode</span><span class="o">*</span> <span class="nf">build</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">preorder</span><span class="p">,</span> <span class="kt">int</span> <span class="n">start</span><span class="p">,</span> <span class="kt">int</span> <span class="n">end</span><span class="p">){</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">start</span> <span class="o">&gt;</span> <span class="n">end</span><span class="p">)</span> <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span> <span class="c1">// 中序的start和end
+</span><span class="c1"></span>        <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">findIndex</span><span class="p">[</span><span class="n">preorder</span><span class="p">[</span><span class="n">index</span><span class="p">]];</span>
+        <span class="n">TreeNode</span> <span class="o">*</span><span class="n">tree</span> <span class="o">=</span> <span class="k">new</span> <span class="n">TreeNode</span><span class="p">(</span><span class="n">preorder</span><span class="p">[</span><span class="n">index</span><span class="o">++</span><span class="p">]);</span>
+        <span class="n">tree</span><span class="o">-&gt;</span><span class="n">left</span>  <span class="o">=</span> <span class="n">build</span><span class="p">(</span><span class="n">preorder</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">);</span>
+        <span class="n">tree</span><span class="o">-&gt;</span><span class="n">right</span> <span class="o">=</span> <span class="n">build</span><span class="p">(</span><span class="n">preorder</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">end</span><span class="p">);</span>
+        <span class="k">return</span> <span class="n">tree</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+</code></pre></div></li>
+<li>
+<p>如果使用栈来解决首先要搞懂一个知识点，就是前序遍历挨着的两个值比如m和n，他们会有下面两种情况之一的关系。</p>
+<ol>
+<li>
+<p>n是m左子树节点的值。</p>
+</li>
+<li>
+<p>n是m右子树节点的值或者是m某个祖先节点的右节点的值。</p>
+</li>
+</ol>
+<blockquote>
+<ul>
+<li>
+<p>对于第一个知识点我们很容易理解，如果m的左子树不为空，那么n就是m左子树节点的值。</p>
+</li>
+<li>
+<p>对于第二个问题，如果一个结点没有左子树只有右子树，那么n就是m右子树节点的值，如果一个结点既没有左子树也没有右子树，那么n就是m某个祖先节点的右节点，我们只要找到这个祖先节点就好办了。</p>
+</li>
+</ul>
+</blockquote>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="n">TreeNode</span> <span class="nf">buildTree</span><span class="o">(</span><span class="kt">int</span><span class="o">[]</span> <span class="n">preorder</span><span class="o">,</span> <span class="kt">int</span><span class="o">[]</span> <span class="n">inorder</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">preorder</span><span class="o">.</span><span class="na">length</span> <span class="o">==</span> <span class="n">0</span><span class="o">)</span>
+        <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+    <span class="n">Stack</span><span class="o">&lt;</span><span class="n">TreeNode</span><span class="o">&gt;</span> <span class="n">s</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Stack</span><span class="o">&lt;&gt;();</span>
+    <span class="c1">//前序的第一个其实就是根节点
+</span><span class="c1"></span>    <span class="n">TreeNode</span> <span class="n">root</span> <span class="o">=</span> <span class="k">new</span> <span class="n">TreeNode</span><span class="o">(</span><span class="n">preorder</span><span class="o">[</span><span class="n">0</span><span class="o">]);</span>
+    <span class="n">TreeNode</span> <span class="n">cur</span> <span class="o">=</span> <span class="n">root</span><span class="o">;</span>
+    <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">1</span><span class="o">,</span> <span class="n">j</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">preorder</span><span class="o">.</span><span class="na">length</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+        <span class="c1">//第一种情况
+</span><span class="c1"></span>        <span class="k">if</span> <span class="o">(</span><span class="n">cur</span><span class="o">.</span><span class="na">val</span> <span class="o">!=</span> <span class="n">inorder</span><span class="o">[</span><span class="n">j</span><span class="o">])</span> <span class="o">{</span>
+            <span class="n">cur</span><span class="o">.</span><span class="na">left</span> <span class="o">=</span> <span class="k">new</span> <span class="n">TreeNode</span><span class="o">(</span><span class="n">preorder</span><span class="o">[</span><span class="n">i</span><span class="o">]);</span>
+            <span class="n">s</span><span class="o">.</span><span class="na">push</span><span class="o">(</span><span class="n">cur</span><span class="o">);</span>
+            <span class="n">cur</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="na">left</span><span class="o">;</span>
+        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+            <span class="c1">//第二种情况
+</span><span class="c1"></span>            <span class="n">j</span><span class="o">++;</span>
+            <span class="c1">//找到合适的cur，然后确定他的右节点
+</span><span class="c1"></span>            <span class="k">while</span> <span class="o">(!</span><span class="n">s</span><span class="o">.</span><span class="na">empty</span><span class="o">()</span> <span class="o">&amp;&amp;</span> <span class="n">s</span><span class="o">.</span><span class="na">peek</span><span class="o">().</span><span class="na">val</span> <span class="o">==</span> <span class="n">inorder</span><span class="o">[</span><span class="n">j</span><span class="o">])</span> <span class="o">{</span>
+                <span class="n">cur</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="na">pop</span><span class="o">();</span>
+                <span class="n">j</span><span class="o">++;</span>
+            <span class="o">}</span>
+            <span class="c1">//给cur添加右节点
+</span><span class="c1"></span>            <span class="n">cur</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="na">right</span> <span class="o">=</span> <span class="k">new</span> <span class="n">TreeNode</span><span class="o">(</span><span class="n">preorder</span><span class="o">[</span><span class="n">i</span><span class="o">]);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+    <span class="k">return</span> <span class="n">root</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></li>
+</ul>
+<h3 id="用两个栈实现队列">用两个栈实现队列</h3>
+<p>用两个栈实现一个队列。队列的声明如下，请实现它的两个函数 appendTail 和 deleteHead ，分别完成在队列尾部插入整数和在队列头部删除整数的功能。(若队列中没有元素，deleteHead 操作返回 -1 )</p>
+<ul>
+<li>第一个栈直接插入，第二个栈直接删除。如果删除的时候为空，第一个栈元素全部出栈压入第二个栈，再进行删除操作， 此时还是空就返回-1。</li>
+</ul>
+<h3 id="斐波那契数列">斐波那契数列</h3>
+<p>写一个函数，输入 n ，求斐波那契（Fibonacci）数列的第 n 项。斐波那契数列的定义如下：</p>
+<blockquote>
+<p>F(0) = 0,   F(1) = 1</p>
+</blockquote>
+<blockquote>
+<p>F(N) = F(N - 1) + F(N - 2), 其中 N &gt; 1.</p>
+</blockquote>
+<p>斐波那契数列由 0 和 1 开始，之后的斐波那契数就是由之前的两数相加而得出。</p>
+<p>答案需要取模 1e9+7（1000000007），如计算初始结果为：1000000008，请返回 1。</p>
+<ul>
+<li>非递归，两个变量交替前进。（动态规划）</li>
+</ul>
+<h3 id="青蛙跳台阶问题">青蛙跳台阶问题</h3>
+<p>一只青蛙一次可以跳上1级台阶，也可以跳上2级台阶。求该青蛙跳上一个 n 级的台阶总共有多少种跳法。
+答案需要取模 1e9+7（1000000007），如计算初始结果为：1000000008，请返回 1。</p>
+<ul>
+<li>同 <a class="link" href="#%e6%96%90%e6%b3%a2%e9%82%a3%e5%a5%91%e6%95%b0%e5%88%97" >斐波那契数列</a></li>
+</ul>
+<h3 id="旋转数组的最小数字">旋转数组的最小数字</h3>
+<p>把一个数组最开始的若干个元素搬到数组的末尾，我们称之为数组的旋转。输入一个递增排序的数组的一个旋转，输出旋转数组的最小元素。例如，数组 [3,4,5,1,2] 为 [1,2,3,4,5] 的一个旋转，该数组的最小值为1。</p>
+<ul>
+<li>
+<p>二分查找。将中间值与最后一个元素比较。比最后一个元素小说明当前元素在最小值右侧，比最后一个元素大则在左侧。</p>
+</li>
+<li>
+<p>分治递归。左边比右边小，左边一定是最小值。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Solution</span> <span class="o">{</span>
+
+    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">minArray</span><span class="o">(</span><span class="kt">int</span><span class="o">[]</span> <span class="n">nums</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kt">int</span> <span class="n">len</span> <span class="o">=</span> <span class="n">nums</span><span class="o">.</span><span class="na">length</span><span class="o">;</span>
+        <span class="k">return</span> <span class="n">minArray</span><span class="o">(</span><span class="n">nums</span><span class="o">,</span> <span class="n">0</span><span class="o">,</span> <span class="n">len</span> <span class="o">-</span> <span class="n">1</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="kd">private</span> <span class="kt">int</span> <span class="nf">minArray</span><span class="o">(</span><span class="kt">int</span><span class="o">[]</span> <span class="n">nums</span><span class="o">,</span> <span class="kt">int</span> <span class="n">left</span><span class="o">,</span> <span class="kt">int</span> <span class="n">right</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">left</span> <span class="o">+</span> <span class="n">1</span> <span class="o">&gt;=</span> <span class="n">right</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="n">Math</span><span class="o">.</span><span class="na">min</span><span class="o">(</span><span class="n">nums</span><span class="o">[</span><span class="n">left</span><span class="o">],</span> <span class="n">nums</span><span class="o">[</span><span class="n">right</span><span class="o">]);</span>
+        <span class="o">}</span>
+
+        <span class="k">if</span> <span class="o">(</span><span class="n">nums</span><span class="o">[</span><span class="n">left</span><span class="o">]</span> <span class="o">&lt;</span> <span class="n">nums</span><span class="o">[</span><span class="n">right</span><span class="o">])</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="n">nums</span><span class="o">[</span><span class="n">left</span><span class="o">];</span>
+        <span class="o">}</span>
+        <span class="kt">int</span> <span class="n">mid</span> <span class="o">=</span> <span class="n">left</span> <span class="o">+</span> <span class="o">(</span><span class="n">right</span> <span class="o">-</span> <span class="n">left</span><span class="o">)</span> <span class="o">/</span> <span class="n">2</span><span class="o">;</span>
+        <span class="k">return</span> <span class="n">Math</span><span class="o">.</span><span class="na">min</span><span class="o">(</span><span class="n">minArray</span><span class="o">(</span><span class="n">nums</span><span class="o">,</span> <span class="n">left</span><span class="o">,</span> <span class="n">mid</span> <span class="o">-</span> <span class="n">1</span><span class="o">),</span> <span class="n">minArray</span><span class="o">(</span><span class="n">nums</span><span class="o">,</span> <span class="n">mid</span><span class="o">,</span> <span class="n">right</span><span class="o">));</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></li>
+</ul>
+<h3 id="矩阵中的路径">矩阵中的路径</h3>
+<p>请设计一个函数，用来判断在一个矩阵中是否存在一条包含某字符串所有字符的路径。路径可以从矩阵中的任意一格开始，每一步可以在矩阵中向左、右、上、下移动一格。如果一条路径经过了矩阵的某一格，那么该路径不能再次进入该格子。例如，在下面的3×4的矩阵中包含一条字符串“bfce”的路径（路径中的字母用加粗标出）。</p>
+<p>[[&ldquo;a&rdquo;,&quot;<strong>b</strong>&quot;,&ldquo;c&rdquo;,&ldquo;e&rdquo;],</p>
+<p>[&ldquo;s&rdquo;,&quot;<strong>f</strong>&quot;,&quot;<strong>c</strong>&quot;,&ldquo;s&rdquo;],</p>
+<p>[&ldquo;a&rdquo;,&ldquo;d&rdquo;,&quot;<strong>e</strong>&quot;,&ldquo;e&rdquo;]]</p>
+<p>但矩阵中不包含字符串“abfb”的路径，因为字符串的第一个字符b占据了矩阵中的第一行第二个格子之后，路径不能再次进入这个格子。</p>
+<ul>
+<li>
+<p>深度优先搜索，回溯。下标越界或当前值不满足直接返回false。否则标记当前值，进行上下左右方向的搜索，只要有一个方向成功返回true这次搜索就为true。搜索完成后返回前恢复被标记的值。搜索到word的最后一个字符时也为true。</p>
+<blockquote>
+<ul>
+<li>
+<p>时间复杂度 O(3^KMN) ： 最差情况下，需要遍历矩阵中长度为 K 字符串的所有方案，时间复杂度为 O(3^K) ；矩阵中共有 MN个起点，时间复杂度为 O(MN) 。</p>
+<p>方案数计算： 设字符串长度为 K ，搜索中每个字符有上、下、左、右四个方向可以选择，舍弃回头（上个字符）的方向，剩下 33 种选择，因此方案数的复杂度为 O(3^K) 。</p>
+</li>
+<li>
+<p>空间复杂度 O(K) ： 搜索过程中的递归深度不超过 K ，因此系统因函数调用累计使用的栈空间占用 O(K) （因为函数返回后，系统调用的栈空间会释放）。最坏情况下 K = MN ，递归深度为 MN ，此时系统栈使用 O(MN) 的额外空间。</p>
+</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+<h3 id="机器人的运动范围">机器人的运动范围</h3>
+<p>地上有一个m行n列的方格，从坐标 [0,0] 到坐标 [m-1,n-1] 。一个机器人从坐标 [0, 0] 的格子开始移动，它每次可以向左、右、上、下移动一格（不能移动到方格外），也不能进入行坐标和列坐标的数位之和大于k的格子。例如，当k为18时，机器人能够进入方格 [35, 37] ，因为3+5+3+7=18。但它不能进入方格 [35, 38]，因为3+5+3+8=19。请问该机器人能够到达多少个格子？</p>
+<ul>
+<li>
+<p>k增大时新来的可访问格子都在之前最边界的右下方。搜索时只需要向下向右搜索。</p>
+</li>
+<li>
+<p>把第一个压入队列，出队时判断右下两个方向是否满足，满足就入队，计数加一，直到队空。<strong>与二叉树的层次遍历方法类似</strong></p>
+</li>
+<li>
+<p>不满足返回0，满足返回1+递归左右的结果。</p>
+</li>
+</ul>
+<h3 id="剪绳子">剪绳子</h3>
+<p>给你一根长度为 n 的绳子，请把绳子剪成整数长度的 m 段（m、n都是整数，n&gt;1并且m&gt;1），每段绳子的长度记为 k[0],k[1]&hellip;k[m-1] 。请问 k[0]*k[1]*&hellip;*k[m-1] 可能的最大乘积是多少？例如，当绳子的长度是8时，我们把它剪成长度分别为2、3、3的三段，此时得到的最大乘积是18。</p>
+<ul>
+<li>动态规划。两次遍历。<code>dp[i] = max(dp[i], max((i - j) * j, j * dp[i - j]))</code></li>
+</ul>
+<h3 id="二进制中1的个数">二进制中1的个数</h3>
+<p>请实现一个函数，输入一个整数（以二进制串形式），输出该数二进制表示中 1 的个数。例如，把 9 表示成二进制是 1001，有 2 位是 1。因此，如果输入 9，则该函数输出 2。</p>
+<ul>
+<li>
+<p>循环右移&amp;1判断记数。</p>
+</li>
+<li>
+<p><strong>n&amp;(n−1)</strong> ：二进制数字 n 最右边的 1 变成 0 ，其余不变。减少判断次数。</p>
+</li>
+</ul>
+<h3 id="数值的整数次方">数值的整数次方</h3>
+<p>实现函数<code>double Power(double base, int exponent)</code>，求base的exponent次方。不得使用库函数，同时不需要考虑大数问题。</p>
+<ul>
+<li>
+<p>递归求base^2的n/2次方。偶数的时候计算<code>Power(base*base, exponent/2)</code>，计数的时候计算<code>base*Power(base*base, exponent/2)</code></p>
+</li>
+<li>
+<p>快速幂。将n拆分为2的幂之和。将n循环右移，并使<code>x *= x</code>，判断最后一位是否为1，如果是1，将结果乘x，为0则跳过。</p>
+</li>
+</ul>
+<h3 id="打印从1到最大的n位数">打印从1到最大的n位数</h3>
+<p>输入数字 <code>n</code>，按顺序打印出从 1 到最大的 n 位十进制数。比如输入 3，则打印出 1、2、3 一直到最大的 3 位数 999。</p>
+<ul>
+<li>大数问题。使用string存储数据，最后一位加一后判断进位，判断溢出。输出时找到最左边的非零位置，substring。</li>
+</ul>
+<h3 id="删除链表的节点">删除链表的节点</h3>
+<p>给定单向链表的头指针和一个要删除的节点的值，定义一个函数删除该节点。</p>
+<p>返回删除后的链表的头节点。</p>
+<ul>
+<li>双指针。</li>
+</ul>
+<h3 id="正则表达式匹配">正则表达式匹配</h3>
+<p>请实现一个函数用来匹配包含'. &lsquo;和&rsquo;*&lsquo;的正则表达式。模式中的字符&rsquo;.&lsquo;表示任意一个字符，而&rsquo;*&lsquo;表示它前面的字符可以出现任意次（含0次）。在本题中，匹配是指字符串的所有字符匹配整个模式。例如，字符串&quot;aaa&quot;与模式&quot;a.a&quot;和&quot;ab*ac*a&quot;匹配，但与&quot;aa.a&quot;和&quot;ab*a&quot;均不匹配。</p>
+<h3 id="表示数值的字符串">表示数值的字符串</h3>
+<p>请实现一个函数用来判断字符串是否表示数值（包括整数和小数）。例如，字符串&quot;+100&quot;、&ldquo;5e2&rdquo;、&quot;-123&quot;、&ldquo;3.1416&rdquo;、&quot;-1E-16&quot;、&ldquo;0123&quot;都表示数值，但&quot;12e&rdquo;、&ldquo;1a3.14&rdquo;、&ldquo;1.2.3&rdquo;、&quot;+-5&quot;及&quot;12e+5.4&quot;都不是。</p>
+<h3 id="调整数组顺序使奇数位于偶数前面">调整数组顺序使奇数位于偶数前面</h3>
+<p>输入一个整数数组，实现一个函数来调整该数组中数字的顺序，使得所有奇数位于数组的前半部分，所有偶数位于数组的后半部分。</p>
+<ul>
+<li>定义一个指针p=0，表示当前遇到的奇数的个数。遍历一次，遇到奇数时和p位置交换，p++。</li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E5%89%91%E6%8C%87offer/">剑指offer</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    <section class="article-lastmod">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <span>
+            最后更新于 2020-12-13 00:00 UTC
+        </span>
+    </section></footer>
+
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+</aside>
+
+     
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="yrvsyh/yrvsyh.github.io"
+        issue-term="pathname"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+        setUtterancesTheme(document.documentElement.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2020 - 
+        
+        2021 Yrvsyh&#39;s Blog
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.5.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+
+            </main>
+    
+        <aside class="sidebar right-sidebar sticky">
+            <section class="widget archives">
+                <div class="widget-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+                </div>
+                <h2 class="widget-title section-title">目录</h2>
+                
+                <div class="widget--toc">
+                    <nav id="TableOfContents">
+  <ol>
+    <li>
+      <ol>
+        <li><a href="#数组中重复的数字">数组中重复的数字</a></li>
+        <li><a href="#二维数组中的查找">二维数组中的查找</a></li>
+        <li><a href="#替换空格">替换空格</a></li>
+        <li><a href="#从尾到头打印链表">从尾到头打印链表</a></li>
+        <li><a href="#重建二叉树">重建二叉树</a></li>
+        <li><a href="#用两个栈实现队列">用两个栈实现队列</a></li>
+        <li><a href="#斐波那契数列">斐波那契数列</a></li>
+        <li><a href="#青蛙跳台阶问题">青蛙跳台阶问题</a></li>
+        <li><a href="#旋转数组的最小数字">旋转数组的最小数字</a></li>
+        <li><a href="#矩阵中的路径">矩阵中的路径</a></li>
+        <li><a href="#机器人的运动范围">机器人的运动范围</a></li>
+        <li><a href="#剪绳子">剪绳子</a></li>
+        <li><a href="#二进制中1的个数">二进制中1的个数</a></li>
+        <li><a href="#数值的整数次方">数值的整数次方</a></li>
+        <li><a href="#打印从1到最大的n位数">打印从1到最大的n位数</a></li>
+        <li><a href="#删除链表的节点">删除链表的节点</a></li>
+        <li><a href="#正则表达式匹配">正则表达式匹配</a></li>
+        <li><a href="#表示数值的字符串">表示数值的字符串</a></li>
+        <li><a href="#调整数组顺序使奇数位于偶数前面">调整数组顺序使奇数位于偶数前面</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+                </div>
+            </section>
+        </aside>
+    
+
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

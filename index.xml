@@ -1,0 +1,560 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>Yrvsyh&#39;s Blog</title>
+        <link>http://blog.yrvsyh.top/</link>
+        <description>Recent content on Yrvsyh&#39;s Blog</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>zh-cn</language>
+        <lastBuildDate>Sat, 12 Dec 2020 00:00:00 +0000</lastBuildDate><atom:link href="http://blog.yrvsyh.top/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>Archlinux系统备份恢复技巧</title>
+        <link>http://blog.yrvsyh.top/p/archlinux%E7%B3%BB%E7%BB%9F%E5%A4%87%E4%BB%BD%E6%81%A2%E5%A4%8D%E6%8A%80%E5%B7%A7/</link>
+        <pubDate>Sat, 12 Dec 2020 00:00:00 +0000</pubDate>
+        
+        <guid>http://blog.yrvsyh.top/p/archlinux%E7%B3%BB%E7%BB%9F%E5%A4%87%E4%BB%BD%E6%81%A2%E5%A4%8D%E6%8A%80%E5%B7%A7/</guid>
+        <description>&lt;p&gt;推荐使用Btrfs作为根文件系统，XFS作为/home的文件系统&lt;/p&gt;
+&lt;h1 id=&#34;非btrfs文件系统无cow支持&#34;&gt;非btrfs文件系统（无COW支持）&lt;/h1&gt;
+&lt;h3 id=&#34;方案思路&#34;&gt;方案思路&lt;/h3&gt;
+&lt;p&gt;每次进行备份时若在上一次备份中找到相同的文件，使用硬链接直接指向上次的文件，几乎不额外占用空间；若有新的文件，直接复制即可&lt;/p&gt;
+&lt;h3 id=&#34;方案实现&#34;&gt;方案实现&lt;/h3&gt;
+&lt;p&gt;使用rsync工具的&amp;ndash;link-dest选项&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;This option behaves like &amp;ndash;copy-dest, but unchanged files are hard linked from DIR to the destination directory.  The files must be identical in all preserved attributes (e.g. permissions, possibly ownership) in order for the files to be linked together.  An example:&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;rsync -av --link-dest=$PWD/prior_dir host:src_dir/ new_dir/&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;If file&amp;rsquo;s aren&amp;rsquo;t linking, double-check their attributes.  Also check if some attributes are getting forced outside of rsync&amp;rsquo;s control, such a mount option that squishes root to a single user, or mounts a removable drive with generic ownership (such as OS X&amp;rsquo;s &amp;ldquo;Ignore ownership on this volume&amp;rdquo; option).&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;完整命令为&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;rsync / &lt;span class=&#34;se&#34;&gt;\ &lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;#  备份root目录&lt;/span&gt;
+      --archive &lt;span class=&#34;se&#34;&gt;\ &lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;# 展开为 -rlptgoD&lt;/span&gt;
+      --one-file-system &lt;span class=&#34;se&#34;&gt;\ &lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;# 只备份单文件系统&lt;/span&gt;
+      --verbose &lt;span class=&#34;se&#34;&gt;\ &lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;# 显示详细信息&lt;/span&gt;
+      --link-dest /path/to/last/backup &lt;span class=&#34;se&#34;&gt;\ &lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;# 指定上次备份地址&lt;/span&gt;
+      /path/to/new/backup &lt;span class=&#34;c1&#34;&gt;# 指定此次备份地址&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;也可编写脚本创建一个软链接指向最后一次备份地址，每次备份后更新该软链接的指向，新地址使用date命令创建基于时间的目录名。&lt;/p&gt;
+&lt;p&gt;其他可参考链接：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://blog.lilydjwg.me/2013/12/29/rsync-btrfs-dm-crypt-full-backup.42219.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;rsync+btrfs+dm-crypt 备份整个系统「依云」&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;尝试使用前先理解各个选项的意义，避免出现不可恢复的问题（误删重要数据）&lt;/strong&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;h1 id=&#34;btrfshttpsbtrfswikikernelorgindexphpmain_page文件系统&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://btrfs.wiki.kernel.org/index.php/Main_Page&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Btrfs&lt;/a&gt;文件系统&lt;/h1&gt;
+&lt;p&gt;&lt;strong&gt;&lt;a class=&#34;link&#34; href=&#34;https://wiki.archlinux.org/index.php/Btrfs_%28%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87%29&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;btrfs简介与使用方法参考Archwiki：Btrfs&lt;/a&gt;&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;由于btrfs的写时复制特性，btrfs快照时可以随时生成与恢复，不需要额外的等待时间。&lt;/p&gt;
+&lt;h2 id=&#34;子卷划分方案&#34;&gt;子卷划分方案&lt;/h2&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;/
+├─@root       挂载至 /
+├─@home       挂载至 /home
+├─@pkg        挂载至 /var/cache/pacman/pkg &lt;span class=&#34;c1&#34;&gt;# pacman包管理缓存&lt;/span&gt;
+├─@snapshots  挂载至 /.snapshots &lt;span class=&#34;c1&#34;&gt;# snapper备份的快照存放在此&lt;/span&gt;
+└─var/log     挂载至 /var/log &lt;span class=&#34;c1&#34;&gt;# 系统恢复时保留旧的log文件&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;snapperhttpswikiarchlinuxorgindexphpsnapper_e7ae80e4bd93e4b8ade69687&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://wiki.archlinux.org/index.php/Snapper_%28%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87%29&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Snapper&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;安装snap-pac软件包，每次执行pacman动作时，pacman钩子自动完成root的快照构建。&lt;/p&gt;
+&lt;p&gt;若在某次系统更新后出现bug，可直接使用snapper回退整个根文件系统，或使用Archiso修改grub引导选项，直接从快照启动。&lt;/p&gt;
+</description>
+        </item>
+        <item>
+        <title>宿舍千兆局域网组网方案（共享校园网、科学上网）</title>
+        <link>http://blog.yrvsyh.top/p/%E5%AE%BF%E8%88%8D%E5%8D%83%E5%85%86%E5%B1%80%E5%9F%9F%E7%BD%91%E7%BB%84%E7%BD%91%E6%96%B9%E6%A1%88%E5%85%B1%E4%BA%AB%E6%A0%A1%E5%9B%AD%E7%BD%91%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/</link>
+        <pubDate>Sat, 12 Dec 2020 00:00:00 +0000</pubDate>
+        
+        <guid>http://blog.yrvsyh.top/p/%E5%AE%BF%E8%88%8D%E5%8D%83%E5%85%86%E5%B1%80%E5%9F%9F%E7%BD%91%E7%BB%84%E7%BD%91%E6%96%B9%E6%A1%88%E5%85%B1%E4%BA%AB%E6%A0%A1%E5%9B%AD%E7%BD%91%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/</guid>
+        <description>&lt;h1 id=&#34;单网口方案&#34;&gt;单网口方案&lt;/h1&gt;
+&lt;h2 id=&#34;路由器配置&#34;&gt;路由器配置&lt;/h2&gt;
+&lt;p&gt;由于只有一个网卡，LAN流量与WAN流量都需要经过此网卡，需要对LAN流量和WAN流量进行隔离，所以选择使用vlan划分网络。&lt;/p&gt;
+&lt;p&gt;OpenWrt基于linux系统，可直接对物理网卡划分vlan：假设物理网卡为eth0，新建虚拟网卡eth0.1、eth0.2即可分别接收vlan1、valn2的数据包。&lt;/p&gt;
+&lt;p&gt;将网卡eth0.1分为LAN组（或与无线网卡桥接），eth0.2分为WAN组。&lt;/p&gt;
+&lt;h4 id=&#34;wan口&#34;&gt;WAN口&lt;/h4&gt;
+&lt;p&gt;配置接口的ip获取方式为DHCP方式，自动获取校园网分配的ip。&lt;/p&gt;
+&lt;h4 id=&#34;lan口&#34;&gt;LAN口&lt;/h4&gt;
+&lt;p&gt;设置静态ip地址，如192.168.0.254。打开该接口上的DHCP服务器，为宿舍内网设备提供ip分配。&lt;/p&gt;
+&lt;h4 id=&#34;mentohust插件&#34;&gt;MentoHUST插件&lt;/h4&gt;
+&lt;p&gt;启用该服务（支持锐捷，其他协议自行尝试）。&lt;/p&gt;
+&lt;p&gt;接口选择eth0.2，即与校园网相连的接口。&lt;/p&gt;
+&lt;h4 id=&#34;防火墙&#34;&gt;防火墙&lt;/h4&gt;
+&lt;p&gt;打开IP动态伪装&lt;/p&gt;
+&lt;p&gt;&lt;figure 
+	
+		class=&#34;gallery-image&#34; 
+		style=&#34;
+			flex-grow: 1199; 
+			flex-basis: 2878px&#34;
+	&gt;
+	&lt;a href=&#34;http://blog.yrvsyh.top/p/%E5%AE%BF%E8%88%8D%E5%8D%83%E5%85%86%E5%B1%80%E5%9F%9F%E7%BD%91%E7%BB%84%E7%BD%91%E6%96%B9%E6%A1%88%E5%85%B1%E4%BA%AB%E6%A0%A1%E5%9B%AD%E7%BD%91%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/firewall-config.png&#34; data-size=&#34;1463x122&#34;&gt;
+		&lt;img src=&#34;http://blog.yrvsyh.top/p/%E5%AE%BF%E8%88%8D%E5%8D%83%E5%85%86%E5%B1%80%E5%9F%9F%E7%BD%91%E7%BB%84%E7%BD%91%E6%96%B9%E6%A1%88%E5%85%B1%E4%BA%AB%E6%A0%A1%E5%9B%AD%E7%BD%91%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/firewall-config.png&#34;
+			width=&#34;1463&#34;
+			height=&#34;122&#34;
+			srcset=&#34;http://blog.yrvsyh.top/p/%E5%AE%BF%E8%88%8D%E5%8D%83%E5%85%86%E5%B1%80%E5%9F%9F%E7%BD%91%E7%BB%84%E7%BD%91%E6%96%B9%E6%A1%88%E5%85%B1%E4%BA%AB%E6%A0%A1%E5%9B%AD%E7%BD%91%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/firewall-config_huff50834162bc976829afc77a0a9b6f5d_21187_480x0_resize_box_3.png 480w, http://blog.yrvsyh.top/p/%E5%AE%BF%E8%88%8D%E5%8D%83%E5%85%86%E5%B1%80%E5%9F%9F%E7%BD%91%E7%BB%84%E7%BD%91%E6%96%B9%E6%A1%88%E5%85%B1%E4%BA%AB%E6%A0%A1%E5%9B%AD%E7%BD%91%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/firewall-config_huff50834162bc976829afc77a0a9b6f5d_21187_1024x0_resize_box_3.png 1024w&#34;
+			loading=&#34;lazy&#34;
+			alt=&#34;打开IP动态伪装&#34;&gt;
+	&lt;/a&gt;
+	
+	&lt;figcaption&gt;打开IP动态伪装&lt;/figcaption&gt;
+	
+&lt;/figure&gt;&lt;/p&gt;
+&lt;h2 id=&#34;交换机配置&#34;&gt;交换机配置&lt;/h2&gt;
+&lt;p&gt;使用交换机划分vlan，连接路由器的端口与连接校园网的端口作为一组vlan，连接局域网上设备的端口作为另一组vlan。&lt;/p&gt;
+&lt;p&gt;&lt;figure 
+	
+		class=&#34;gallery-image&#34; 
+		style=&#34;
+			flex-grow: 839; 
+			flex-basis: 2014px&#34;
+	&gt;
+	&lt;a href=&#34;http://blog.yrvsyh.top/p/%E5%AE%BF%E8%88%8D%E5%8D%83%E5%85%86%E5%B1%80%E5%9F%9F%E7%BD%91%E7%BB%84%E7%BD%91%E6%96%B9%E6%A1%88%E5%85%B1%E4%BA%AB%E6%A0%A1%E5%9B%AD%E7%BD%91%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/vlan-config.png&#34; data-size=&#34;663x79&#34;&gt;
+		&lt;img src=&#34;http://blog.yrvsyh.top/p/%E5%AE%BF%E8%88%8D%E5%8D%83%E5%85%86%E5%B1%80%E5%9F%9F%E7%BD%91%E7%BB%84%E7%BD%91%E6%96%B9%E6%A1%88%E5%85%B1%E4%BA%AB%E6%A0%A1%E5%9B%AD%E7%BD%91%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/vlan-config.png&#34;
+			width=&#34;663&#34;
+			height=&#34;79&#34;
+			srcset=&#34;http://blog.yrvsyh.top/p/%E5%AE%BF%E8%88%8D%E5%8D%83%E5%85%86%E5%B1%80%E5%9F%9F%E7%BD%91%E7%BB%84%E7%BD%91%E6%96%B9%E6%A1%88%E5%85%B1%E4%BA%AB%E6%A0%A1%E5%9B%AD%E7%BD%91%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/vlan-config_hu236e002cfe66560754dfcda394a5c7b3_9490_480x0_resize_box_3.png 480w, http://blog.yrvsyh.top/p/%E5%AE%BF%E8%88%8D%E5%8D%83%E5%85%86%E5%B1%80%E5%9F%9F%E7%BD%91%E7%BB%84%E7%BD%91%E6%96%B9%E6%A1%88%E5%85%B1%E4%BA%AB%E6%A0%A1%E5%9B%AD%E7%BD%91%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/vlan-config_hu236e002cfe66560754dfcda394a5c7b3_9490_1024x0_resize_box_3.png 1024w&#34;
+			loading=&#34;lazy&#34;
+			alt=&#34;VLAN配置&#34;&gt;
+	&lt;/a&gt;
+	
+	&lt;figcaption&gt;VLAN配置&lt;/figcaption&gt;
+	
+&lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;&lt;figure 
+	
+		class=&#34;gallery-image&#34; 
+		style=&#34;
+			flex-grow: 166; 
+			flex-basis: 398px&#34;
+	&gt;
+	&lt;a href=&#34;http://blog.yrvsyh.top/p/%E5%AE%BF%E8%88%8D%E5%8D%83%E5%85%86%E5%B1%80%E5%9F%9F%E7%BD%91%E7%BB%84%E7%BD%91%E6%96%B9%E6%A1%88%E5%85%B1%E4%BA%AB%E6%A0%A1%E5%9B%AD%E7%BD%91%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/pvid-config.png&#34; data-size=&#34;699x421&#34;&gt;
+		&lt;img src=&#34;http://blog.yrvsyh.top/p/%E5%AE%BF%E8%88%8D%E5%8D%83%E5%85%86%E5%B1%80%E5%9F%9F%E7%BD%91%E7%BB%84%E7%BD%91%E6%96%B9%E6%A1%88%E5%85%B1%E4%BA%AB%E6%A0%A1%E5%9B%AD%E7%BD%91%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/pvid-config.png&#34;
+			width=&#34;699&#34;
+			height=&#34;421&#34;
+			srcset=&#34;http://blog.yrvsyh.top/p/%E5%AE%BF%E8%88%8D%E5%8D%83%E5%85%86%E5%B1%80%E5%9F%9F%E7%BD%91%E7%BB%84%E7%BD%91%E6%96%B9%E6%A1%88%E5%85%B1%E4%BA%AB%E6%A0%A1%E5%9B%AD%E7%BD%91%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/pvid-config_hu93c08fab95d1cb887c0a5856fea1c0a8_30329_480x0_resize_box_3.png 480w, http://blog.yrvsyh.top/p/%E5%AE%BF%E8%88%8D%E5%8D%83%E5%85%86%E5%B1%80%E5%9F%9F%E7%BD%91%E7%BB%84%E7%BD%91%E6%96%B9%E6%A1%88%E5%85%B1%E4%BA%AB%E6%A0%A1%E5%9B%AD%E7%BD%91%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91/pvid-config_hu93c08fab95d1cb887c0a5856fea1c0a8_30329_1024x0_resize_box_3.png 1024w&#34;
+			loading=&#34;lazy&#34;
+			alt=&#34;PVID配置&#34;&gt;
+	&lt;/a&gt;
+	
+	&lt;figcaption&gt;PVID配置&lt;/figcaption&gt;
+	
+&lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;配置说明：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;数据包流入流出tagged端口时保留携带的tag号。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;数据包流入流出untagged端口时清除携带的tag号。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;PVID为无tag的数据包进入某一端口后带上的tag号。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;此时1-5号端口为局域网端口，6、8号端口可连接校园网，7号端口连接路由器。&lt;/p&gt;
+&lt;p&gt;现在假设1号端口连接PC，8号连接校园网，分析数据包路径如下：&lt;/p&gt;
+&lt;h3 id=&#34;pc的出站流量&#34;&gt;PC的出站流量&lt;/h3&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;PC（无tag） -&amp;gt;
+入1号端口（tag 1） --
+此数据包只能从VLAN1的成员端口流出（即1-5、7） -&amp;gt;
+出7号端口（tag1保留） -&amp;gt;
+路由器eht0.1（tag1） -&amp;gt;
+路由器处理 -&amp;gt;
+路由器eht0.2（tag2） -&amp;gt;
+入7号端口（tag2保留） --
+此数据包只能从VLAN2的成员端口流出（即6-8） -&amp;gt;
+出8号端口（无tag） -&amp;gt;
+校园网
+&lt;/code&gt;&lt;/pre&gt;&lt;h3 id=&#34;pc的入站流量&#34;&gt;PC的入站流量&lt;/h3&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;校园网 -&amp;gt;
+入8号端口（tag2） --
+此数据包只能从VLAN2的成员端口流出（即6-8） -&amp;gt;
+出7号端口（tag2保留） -&amp;gt;
+路由器eht0.2（tag2） -&amp;gt;
+路由器处理 -&amp;gt;
+路由器eht0.1（tag1） -&amp;gt;
+入7号端口（tag1保留） --
+此数据包只能从VLAN1的成员端口流出（即1-5、7） -&amp;gt;
+出1号端口（无tag） -&amp;gt;
+PC
+&lt;/code&gt;&lt;/pre&gt;&lt;h1 id=&#34;多网口方案&#34;&gt;多网口方案&lt;/h1&gt;
+&lt;p&gt;参考单网口方案，忽略交换机部分，正确配置WAN口即可。&lt;/p&gt;
+</description>
+        </item>
+        <item>
+        <title>x64平台gcc内联汇编打印函数调用堆栈</title>
+        <link>http://blog.yrvsyh.top/p/x64%E5%B9%B3%E5%8F%B0gcc%E5%86%85%E8%81%94%E6%B1%87%E7%BC%96%E6%89%93%E5%8D%B0%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E5%A0%86%E6%A0%88/</link>
+        <pubDate>Thu, 10 Dec 2020 00:00:00 +0000</pubDate>
+        
+        <guid>http://blog.yrvsyh.top/p/x64%E5%B9%B3%E5%8F%B0gcc%E5%86%85%E8%81%94%E6%B1%87%E7%BC%96%E6%89%93%E5%8D%B0%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E5%A0%86%E6%A0%88/</guid>
+        <description>&lt;p&gt;gcc内联汇编格式：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;k&#34;&gt;asm&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;assembler&lt;/span&gt; &lt;span class=&#34;nl&#34;&gt;template&lt;/span&gt; 
+      &lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;output&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;operands&lt;/span&gt;                  &lt;span class=&#34;cm&#34;&gt;/* optional */&lt;/span&gt;
+      &lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;input&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;operands&lt;/span&gt;                   &lt;span class=&#34;cm&#34;&gt;/* optional */&lt;/span&gt;
+      &lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;list&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;of&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;clobbered&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;registers&lt;/span&gt;      &lt;span class=&#34;cm&#34;&gt;/* optional */&lt;/span&gt;
+      &lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;stdio.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;
+&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;printStack&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;kt&#34;&gt;unsigned&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;long&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;rbp&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;kt&#34;&gt;unsigned&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;long&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;rsp&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;c1&#34;&gt;// 当前rbp为上一层rsp-2，存放上一层的rbp
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;n&#34;&gt;__asm__&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;movq %%rbp, %0&amp;#34;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;=r&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;rsp&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;rbp&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;unsigned&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;long&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;rsp&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;rsp&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;+=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;2&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;printf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;0x%016lX -&amp;gt; 0x%016lX &amp;lt;- rsp&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;\n&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;rsp&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;rsp&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;++&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;while&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;rbp&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;rsp&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;n&#34;&gt;printf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;0x%016lX -&amp;gt; 0x%016lX&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;\n&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;rsp&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;rsp&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;++&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;printf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;0x%016lX -&amp;gt; 0x%016lX &amp;lt;- rbp&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;\n&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;rsp&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;rsp&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;++&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;c1&#34;&gt;// rbp后一个值为函数返回地址
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;n&#34;&gt;printf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;0x%016lX -&amp;gt; 0x%016lX &amp;lt;- ret&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;\n&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;rsp&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;rsp&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;++&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;kt&#34;&gt;long&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;func&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;volatile&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;long&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;buf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;2&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;};&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;volatile&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;long&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;a&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mh&#34;&gt;0xFFF&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;volatile&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;char&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;b&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mh&#34;&gt;0xB&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;volatile&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;c&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mh&#34;&gt;0xFF&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;volatile&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;char&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;d&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mh&#34;&gt;0xD&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;printStack&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;a&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+
+&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;main&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;argc&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;char&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;const&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;argv&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[])&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;volatile&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;long&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;r&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;func&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;printStack&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;运行结果：&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;0x00007FFDF8AEC598 -&amp;gt; 0x000000FF0D0B5040 &amp;lt;- rsp
+0x00007FFDF8AEC5A0 -&amp;gt; 0x0000000000000FFF
+0x00007FFDF8AEC5A8 -&amp;gt; 0x0000000000000000
+0x00007FFDF8AEC5B0 -&amp;gt; 0x0000000000000000
+0x00007FFDF8AEC5B8 -&amp;gt; 0x00007F19ED4964A0
+0x00007FFDF8AEC5C0 -&amp;gt; 0x4376A2C741749C00
+0x00007FFDF8AEC5C8 -&amp;gt; 0x00007FFDF8AEC5F0 &amp;lt;- rbp
+0x00007FFDF8AEC5D0 -&amp;gt; 0x000055CC0E4F62A1 &amp;lt;- ret
+0x00007FFDF8AEC5D8 -&amp;gt; 0x00007FFDF8AEC6E8 &amp;lt;- rsp
+0x00007FFDF8AEC5E0 -&amp;gt; 0x000000010E4F6050
+0x00007FFDF8AEC5E8 -&amp;gt; 0x00007FFDF8AEC6E0
+0x00007FFDF8AEC5F0 -&amp;gt; 0x0000000000000FFF
+0x00007FFDF8AEC5F8 -&amp;gt; 0x000055CC0E4F62C0 &amp;lt;- rbp
+0x00007FFDF8AEC600 -&amp;gt; 0x00007F19ED29E152 &amp;lt;- ret
+&lt;/code&gt;&lt;/pre&gt;</description>
+        </item>
+        <item>
+        <title>剑指offer刷题笔记</title>
+        <link>http://blog.yrvsyh.top/p/%E5%89%91%E6%8C%87offer%E5%88%B7%E9%A2%98%E7%AC%94%E8%AE%B0/</link>
+        <pubDate>Sat, 28 Nov 2020 00:00:00 +0000</pubDate>
+        
+        <guid>http://blog.yrvsyh.top/p/%E5%89%91%E6%8C%87offer%E5%88%B7%E9%A2%98%E7%AC%94%E8%AE%B0/</guid>
+        <description>&lt;h3 id=&#34;数组中重复的数字&#34;&gt;数组中重复的数字&lt;/h3&gt;
+&lt;p&gt;在一个长度为 n 的数组 nums 里的所有数字都在 0～n-1 的范围内。数组中某些数字是重复的，但不知道有几个数字重复了，也不知道每个数字重复了几次。请找出数组中任意一个重复的数字。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;根据空间时间分析。空间：排序；时间：哈希表，字典。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;二维数组中的查找&#34;&gt;二维数组中的查找&lt;/h3&gt;
+&lt;p&gt;在一个 n * m 的二维数组中，每一行都按照从左到右递增的顺序排序，每一列都按照从上到下递增的顺序排序。请完成一个高效的函数，输入这样的一个二维数组和一个整数，判断数组中是否含有该整数。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;根据对角线判断，考虑nm不相同的情况。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;右上角作为起点，相当于二叉搜索树。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;替换空格&#34;&gt;替换空格&lt;/h3&gt;
+&lt;p&gt;请实现一个函数，把字符串 &lt;code&gt;s&lt;/code&gt; 中的每个空格替换成&amp;quot;%20&amp;quot;。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;java版直接使用replace。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;遍历字符串，分情况追加字符。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;从尾到头打印链表&#34;&gt;从尾到头打印链表&lt;/h3&gt;
+&lt;p&gt;输入一个链表的头节点，从尾到头反过来返回每个节点的值（用数组返回）。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;先找到尾指针，计算出链表的长度，分配相应长度的数组，反向遍历数组同时正向遍历链表，逐个插入。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;正向遍历链表入栈，出栈存入数组。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;重建二叉树&#34;&gt;重建二叉树&lt;/h3&gt;
+&lt;p&gt;输入某二叉树的前序遍历和中序遍历的结果，请重建该二叉树。假设输入的前序遍历和中序遍历的结果中都不含重复的数字。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;前序遍历第一个为根节点，根据根节点在中序遍历的位置找到左子树和右子树，递归左右子树。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;时间复杂度：&lt;em&gt;O&lt;/em&gt;(&lt;em&gt;n&lt;/em&gt;)。对于每个节点都有创建过程以及根据左右子树重建过程。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;空间复杂度：&lt;em&gt;O&lt;/em&gt;(&lt;em&gt;n&lt;/em&gt;)。存储整棵树的开销。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/blockquote&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c++&#34; data-lang=&#34;c++&#34;&gt;&lt;span class=&#34;k&#34;&gt;class&lt;/span&gt; &lt;span class=&#34;nc&#34;&gt;Solution&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;private&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;unordered_map&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;findIndex&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;index&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;k&#34;&gt;public&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;TreeNode&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;buildTree&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;vector&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;amp;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;preorder&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;vector&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;amp;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;inorder&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;i&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;i&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;inorder&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;size&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;();&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;i&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;++&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+            &lt;span class=&#34;n&#34;&gt;findIndex&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;inorder&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;i&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;i&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;c1&#34;&gt;//建立数组值到索引的映射
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;        &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;build&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;preorder&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;inorder&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;size&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;TreeNode&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;build&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;vector&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;amp;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;preorder&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;start&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;end&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;){&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;start&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;end&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;NULL&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;c1&#34;&gt;// 中序的start和end
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;        &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;i&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;findIndex&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;preorder&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;index&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]];&lt;/span&gt;
+        &lt;span class=&#34;n&#34;&gt;TreeNode&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;tree&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;TreeNode&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;preorder&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;index&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;++&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]);&lt;/span&gt;
+        &lt;span class=&#34;n&#34;&gt;tree&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;left&lt;/span&gt;  &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;build&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;preorder&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;start&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;i&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+        &lt;span class=&#34;n&#34;&gt;tree&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;-&amp;gt;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;right&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;build&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;preorder&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;i&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;+&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;end&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;tree&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;p&#34;&gt;};&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;如果使用栈来解决首先要搞懂一个知识点，就是前序遍历挨着的两个值比如m和n，他们会有下面两种情况之一的关系。&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;n是m左子树节点的值。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;n是m右子树节点的值或者是m某个祖先节点的右节点的值。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;blockquote&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;对于第一个知识点我们很容易理解，如果m的左子树不为空，那么n就是m左子树节点的值。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;对于第二个问题，如果一个结点没有左子树只有右子树，那么n就是m右子树节点的值，如果一个结点既没有左子树也没有右子树，那么n就是m某个祖先节点的右节点，我们只要找到这个祖先节点就好办了。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/blockquote&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;kd&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;TreeNode&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;buildTree&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;[]&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;preorder&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;[]&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;inorder&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;preorder&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;length&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;kc&#34;&gt;null&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;Stack&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;TreeNode&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;s&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Stack&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;lt;&amp;gt;();&lt;/span&gt;
+    &lt;span class=&#34;c1&#34;&gt;//前序的第一个其实就是根节点
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;n&#34;&gt;TreeNode&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;root&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;TreeNode&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;preorder&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;]);&lt;/span&gt;
+    &lt;span class=&#34;n&#34;&gt;TreeNode&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;cur&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;root&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;;&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;i&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;j&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;i&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;preorder&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;length&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;i&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;++)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;c1&#34;&gt;//第一种情况
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;        &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;cur&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;val&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;inorder&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;j&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;])&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+            &lt;span class=&#34;n&#34;&gt;cur&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;left&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;TreeNode&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;preorder&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;i&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;]);&lt;/span&gt;
+            &lt;span class=&#34;n&#34;&gt;s&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;push&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;cur&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+            &lt;span class=&#34;n&#34;&gt;cur&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;cur&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;left&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;;&lt;/span&gt;
+        &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;else&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+            &lt;span class=&#34;c1&#34;&gt;//第二种情况
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;            &lt;span class=&#34;n&#34;&gt;j&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;++;&lt;/span&gt;
+            &lt;span class=&#34;c1&#34;&gt;//找到合适的cur，然后确定他的右节点
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;            &lt;span class=&#34;k&#34;&gt;while&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;(!&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;s&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;empty&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;s&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;peek&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;().&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;val&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;inorder&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;j&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;])&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+                &lt;span class=&#34;n&#34;&gt;cur&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;s&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;pop&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;();&lt;/span&gt;
+                &lt;span class=&#34;n&#34;&gt;j&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;++;&lt;/span&gt;
+            &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+            &lt;span class=&#34;c1&#34;&gt;//给cur添加右节点
+&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;            &lt;span class=&#34;n&#34;&gt;cur&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;cur&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;right&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;new&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;TreeNode&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;preorder&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;i&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;]);&lt;/span&gt;
+        &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+    &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+    &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;root&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;;&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;用两个栈实现队列&#34;&gt;用两个栈实现队列&lt;/h3&gt;
+&lt;p&gt;用两个栈实现一个队列。队列的声明如下，请实现它的两个函数 appendTail 和 deleteHead ，分别完成在队列尾部插入整数和在队列头部删除整数的功能。(若队列中没有元素，deleteHead 操作返回 -1 )&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;第一个栈直接插入，第二个栈直接删除。如果删除的时候为空，第一个栈元素全部出栈压入第二个栈，再进行删除操作， 此时还是空就返回-1。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;斐波那契数列&#34;&gt;斐波那契数列&lt;/h3&gt;
+&lt;p&gt;写一个函数，输入 n ，求斐波那契（Fibonacci）数列的第 n 项。斐波那契数列的定义如下：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;F(0) = 0,   F(1) = 1&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;blockquote&gt;
+&lt;p&gt;F(N) = F(N - 1) + F(N - 2), 其中 N &amp;gt; 1.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;斐波那契数列由 0 和 1 开始，之后的斐波那契数就是由之前的两数相加而得出。&lt;/p&gt;
+&lt;p&gt;答案需要取模 1e9+7（1000000007），如计算初始结果为：1000000008，请返回 1。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;非递归，两个变量交替前进。（动态规划）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;青蛙跳台阶问题&#34;&gt;青蛙跳台阶问题&lt;/h3&gt;
+&lt;p&gt;一只青蛙一次可以跳上1级台阶，也可以跳上2级台阶。求该青蛙跳上一个 n 级的台阶总共有多少种跳法。
+答案需要取模 1e9+7（1000000007），如计算初始结果为：1000000008，请返回 1。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;同 &lt;a class=&#34;link&#34; href=&#34;#%e6%96%90%e6%b3%a2%e9%82%a3%e5%a5%91%e6%95%b0%e5%88%97&#34; &gt;斐波那契数列&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;旋转数组的最小数字&#34;&gt;旋转数组的最小数字&lt;/h3&gt;
+&lt;p&gt;把一个数组最开始的若干个元素搬到数组的末尾，我们称之为数组的旋转。输入一个递增排序的数组的一个旋转，输出旋转数组的最小元素。例如，数组 [3,4,5,1,2] 为 [1,2,3,4,5] 的一个旋转，该数组的最小值为1。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;二分查找。将中间值与最后一个元素比较。比最后一个元素小说明当前元素在最小值右侧，比最后一个元素大则在左侧。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;分治递归。左边比右边小，左边一定是最小值。&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;kd&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;kd&#34;&gt;class&lt;/span&gt; &lt;span class=&#34;nc&#34;&gt;Solution&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+
+    &lt;span class=&#34;kd&#34;&gt;public&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;minArray&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;[]&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;nums&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;len&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;nums&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;length&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;;&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;minArray&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;nums&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;len&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;);&lt;/span&gt;
+    &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+
+    &lt;span class=&#34;kd&#34;&gt;private&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;minArray&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;[]&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;nums&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;left&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;right&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;left&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;+&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;1&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;right&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+            &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Math&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;min&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;nums&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;left&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;],&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;nums&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;right&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;]);&lt;/span&gt;
+        &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+
+        &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;nums&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;left&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;nums&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;right&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;])&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;{&lt;/span&gt;
+            &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;nums&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;left&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;];&lt;/span&gt;
+        &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+        &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;mid&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;left&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;+&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;right&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;left&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;/&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;2&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;;&lt;/span&gt;
+        &lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Math&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;min&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;minArray&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;nums&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;left&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;mid&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;-&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;),&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;minArray&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;nums&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;mid&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;right&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;));&lt;/span&gt;
+    &lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;span class=&#34;o&#34;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;矩阵中的路径&#34;&gt;矩阵中的路径&lt;/h3&gt;
+&lt;p&gt;请设计一个函数，用来判断在一个矩阵中是否存在一条包含某字符串所有字符的路径。路径可以从矩阵中的任意一格开始，每一步可以在矩阵中向左、右、上、下移动一格。如果一条路径经过了矩阵的某一格，那么该路径不能再次进入该格子。例如，在下面的3×4的矩阵中包含一条字符串“bfce”的路径（路径中的字母用加粗标出）。&lt;/p&gt;
+&lt;p&gt;[[&amp;ldquo;a&amp;rdquo;,&amp;quot;&lt;strong&gt;b&lt;/strong&gt;&amp;quot;,&amp;ldquo;c&amp;rdquo;,&amp;ldquo;e&amp;rdquo;],&lt;/p&gt;
+&lt;p&gt;[&amp;ldquo;s&amp;rdquo;,&amp;quot;&lt;strong&gt;f&lt;/strong&gt;&amp;quot;,&amp;quot;&lt;strong&gt;c&lt;/strong&gt;&amp;quot;,&amp;ldquo;s&amp;rdquo;],&lt;/p&gt;
+&lt;p&gt;[&amp;ldquo;a&amp;rdquo;,&amp;ldquo;d&amp;rdquo;,&amp;quot;&lt;strong&gt;e&lt;/strong&gt;&amp;quot;,&amp;ldquo;e&amp;rdquo;]]&lt;/p&gt;
+&lt;p&gt;但矩阵中不包含字符串“abfb”的路径，因为字符串的第一个字符b占据了矩阵中的第一行第二个格子之后，路径不能再次进入这个格子。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;深度优先搜索，回溯。下标越界或当前值不满足直接返回false。否则标记当前值，进行上下左右方向的搜索，只要有一个方向成功返回true这次搜索就为true。搜索完成后返回前恢复被标记的值。搜索到word的最后一个字符时也为true。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;时间复杂度 O(3^KMN) ： 最差情况下，需要遍历矩阵中长度为 K 字符串的所有方案，时间复杂度为 O(3^K) ；矩阵中共有 MN个起点，时间复杂度为 O(MN) 。&lt;/p&gt;
+&lt;p&gt;方案数计算： 设字符串长度为 K ，搜索中每个字符有上、下、左、右四个方向可以选择，舍弃回头（上个字符）的方向，剩下 33 种选择，因此方案数的复杂度为 O(3^K) 。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;空间复杂度 O(K) ： 搜索过程中的递归深度不超过 K ，因此系统因函数调用累计使用的栈空间占用 O(K) （因为函数返回后，系统调用的栈空间会释放）。最坏情况下 K = MN ，递归深度为 MN ，此时系统栈使用 O(MN) 的额外空间。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/blockquote&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;机器人的运动范围&#34;&gt;机器人的运动范围&lt;/h3&gt;
+&lt;p&gt;地上有一个m行n列的方格，从坐标 [0,0] 到坐标 [m-1,n-1] 。一个机器人从坐标 [0, 0] 的格子开始移动，它每次可以向左、右、上、下移动一格（不能移动到方格外），也不能进入行坐标和列坐标的数位之和大于k的格子。例如，当k为18时，机器人能够进入方格 [35, 37] ，因为3+5+3+7=18。但它不能进入方格 [35, 38]，因为3+5+3+8=19。请问该机器人能够到达多少个格子？&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;k增大时新来的可访问格子都在之前最边界的右下方。搜索时只需要向下向右搜索。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;把第一个压入队列，出队时判断右下两个方向是否满足，满足就入队，计数加一，直到队空。&lt;strong&gt;与二叉树的层次遍历方法类似&lt;/strong&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;不满足返回0，满足返回1+递归左右的结果。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;剪绳子&#34;&gt;剪绳子&lt;/h3&gt;
+&lt;p&gt;给你一根长度为 n 的绳子，请把绳子剪成整数长度的 m 段（m、n都是整数，n&amp;gt;1并且m&amp;gt;1），每段绳子的长度记为 k[0],k[1]&amp;hellip;k[m-1] 。请问 k[0]*k[1]*&amp;hellip;*k[m-1] 可能的最大乘积是多少？例如，当绳子的长度是8时，我们把它剪成长度分别为2、3、3的三段，此时得到的最大乘积是18。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;动态规划。两次遍历。&lt;code&gt;dp[i] = max(dp[i], max((i - j) * j, j * dp[i - j]))&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;二进制中1的个数&#34;&gt;二进制中1的个数&lt;/h3&gt;
+&lt;p&gt;请实现一个函数，输入一个整数（以二进制串形式），输出该数二进制表示中 1 的个数。例如，把 9 表示成二进制是 1001，有 2 位是 1。因此，如果输入 9，则该函数输出 2。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;循环右移&amp;amp;1判断记数。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;n&amp;amp;(n−1)&lt;/strong&gt; ：二进制数字 n 最右边的 1 变成 0 ，其余不变。减少判断次数。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;数值的整数次方&#34;&gt;数值的整数次方&lt;/h3&gt;
+&lt;p&gt;实现函数&lt;code&gt;double Power(double base, int exponent)&lt;/code&gt;，求base的exponent次方。不得使用库函数，同时不需要考虑大数问题。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;递归求base^2的n/2次方。偶数的时候计算&lt;code&gt;Power(base*base, exponent/2)&lt;/code&gt;，计数的时候计算&lt;code&gt;base*Power(base*base, exponent/2)&lt;/code&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;快速幂。将n拆分为2的幂之和。将n循环右移，并使&lt;code&gt;x *= x&lt;/code&gt;，判断最后一位是否为1，如果是1，将结果乘x，为0则跳过。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;打印从1到最大的n位数&#34;&gt;打印从1到最大的n位数&lt;/h3&gt;
+&lt;p&gt;输入数字 &lt;code&gt;n&lt;/code&gt;，按顺序打印出从 1 到最大的 n 位十进制数。比如输入 3，则打印出 1、2、3 一直到最大的 3 位数 999。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;大数问题。使用string存储数据，最后一位加一后判断进位，判断溢出。输出时找到最左边的非零位置，substring。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;删除链表的节点&#34;&gt;删除链表的节点&lt;/h3&gt;
+&lt;p&gt;给定单向链表的头指针和一个要删除的节点的值，定义一个函数删除该节点。&lt;/p&gt;
+&lt;p&gt;返回删除后的链表的头节点。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;双指针。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;正则表达式匹配&#34;&gt;正则表达式匹配&lt;/h3&gt;
+&lt;p&gt;请实现一个函数用来匹配包含&#39;. &amp;lsquo;和&amp;rsquo;*&amp;lsquo;的正则表达式。模式中的字符&amp;rsquo;.&amp;lsquo;表示任意一个字符，而&amp;rsquo;*&amp;lsquo;表示它前面的字符可以出现任意次（含0次）。在本题中，匹配是指字符串的所有字符匹配整个模式。例如，字符串&amp;quot;aaa&amp;quot;与模式&amp;quot;a.a&amp;quot;和&amp;quot;ab*ac*a&amp;quot;匹配，但与&amp;quot;aa.a&amp;quot;和&amp;quot;ab*a&amp;quot;均不匹配。&lt;/p&gt;
+&lt;h3 id=&#34;表示数值的字符串&#34;&gt;表示数值的字符串&lt;/h3&gt;
+&lt;p&gt;请实现一个函数用来判断字符串是否表示数值（包括整数和小数）。例如，字符串&amp;quot;+100&amp;quot;、&amp;ldquo;5e2&amp;rdquo;、&amp;quot;-123&amp;quot;、&amp;ldquo;3.1416&amp;rdquo;、&amp;quot;-1E-16&amp;quot;、&amp;ldquo;0123&amp;quot;都表示数值，但&amp;quot;12e&amp;rdquo;、&amp;ldquo;1a3.14&amp;rdquo;、&amp;ldquo;1.2.3&amp;rdquo;、&amp;quot;+-5&amp;quot;及&amp;quot;12e+5.4&amp;quot;都不是。&lt;/p&gt;
+&lt;h3 id=&#34;调整数组顺序使奇数位于偶数前面&#34;&gt;调整数组顺序使奇数位于偶数前面&lt;/h3&gt;
+&lt;p&gt;输入一个整数数组，实现一个函数来调整该数组中数字的顺序，使得所有奇数位于数组的前半部分，所有偶数位于数组的后半部分。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;定义一个指针p=0，表示当前遇到的奇数的个数。遍历一次，遇到奇数时和p位置交换，p++。&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        <item>
+        <title>利用git hooks实现文章同步与hugo自动构建</title>
+        <link>http://blog.yrvsyh.top/p/%E5%88%A9%E7%94%A8git-hooks%E5%AE%9E%E7%8E%B0%E6%96%87%E7%AB%A0%E5%90%8C%E6%AD%A5%E4%B8%8Ehugo%E8%87%AA%E5%8A%A8%E6%9E%84%E5%BB%BA/</link>
+        <pubDate>Wed, 24 Jun 2020 00:00:00 +0000</pubDate>
+        
+        <guid>http://blog.yrvsyh.top/p/%E5%88%A9%E7%94%A8git-hooks%E5%AE%9E%E7%8E%B0%E6%96%87%E7%AB%A0%E5%90%8C%E6%AD%A5%E4%B8%8Ehugo%E8%87%AA%E5%8A%A8%E6%9E%84%E5%BB%BA/</guid>
+        <description>&lt;p&gt;关于git hooks的介绍：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;h3 id=&#34;服务器端钩子&#34;&gt;服务器端钩子&lt;/h3&gt;
+&lt;p&gt;除了客户端钩子，作为系统管理员，你还可以使用若干服务器端的钩子对项目强制执行各种类型的策略。 这些钩子脚本在推送到服务器之前和之后运行。 推送到服务器前运行的钩子可以在任何时候以非零值退出，拒绝推送并给客户端返回错误消息，还可以依你所想设置足够复杂的推送策略。&lt;/p&gt;
+&lt;h4 id=&#34;pre-receive&#34;&gt;&lt;code&gt;pre-receive&lt;/code&gt;&lt;/h4&gt;
+&lt;p&gt;处理来自客户端的推送操作时，最先被调用的脚本是 &lt;code&gt;pre-receive&lt;/code&gt;。 它从标准输入获取一系列被推送的引用。如果它以非零值退出，所有的推送内容都不会被接受。 你可以用这个钩子阻止对引用进行非快进（non-fast-forward）的更新，或者对该推送所修改的所有引用和文件进行访问控制。&lt;/p&gt;
+&lt;h4 id=&#34;update&#34;&gt;&lt;code&gt;update&lt;/code&gt;&lt;/h4&gt;
+&lt;p&gt;&lt;code&gt;update&lt;/code&gt; 脚本和 &lt;code&gt;pre-receive&lt;/code&gt; 脚本十分类似，不同之处在于它会为每一个准备更新的分支各运行一次。 假如推送者同时向多个分支推送内容，&lt;code&gt;pre-receive&lt;/code&gt; 只运行一次，相比之下 &lt;code&gt;update&lt;/code&gt; 则会为每一个被推送的分支各运行一次。 它不会从标准输入读取内容，而是接受三个参数：引用的名字（分支），推送前的引用指向的内容的 SHA-1 值，以及用户准备推送的内容的 SHA-1 值。 如果 update 脚本以非零值退出，只有相应的那一个引用会被拒绝；其余的依然会被更新。&lt;/p&gt;
+&lt;h4 id=&#34;post-receive&#34;&gt;&lt;code&gt;post-receive&lt;/code&gt;&lt;/h4&gt;
+&lt;p&gt;&lt;code&gt;post-receive&lt;/code&gt; 挂钩在整个过程完结以后运行，可以用来更新其他系统服务或者通知用户。 它接受与 &lt;code&gt;pre-receive&lt;/code&gt; 相同的标准输入数据。 它的用途包括给某个邮件列表发信，通知持续集成（continous integration）的服务器， 或者更新问题追踪系统（ticket-tracking system） —— 甚至可以通过分析提交信息来决定某个问题（ticket）是否应该被开启，修改或者关闭。 该脚本无法终止推送进程，不过客户端在它结束运行之前将保持连接状态， 所以如果你想做其他操作需谨慎使用它，因为它将耗费你很长的一段时间。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;初始化裸仓库：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;git init --bare blog.git
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;如何访问该裸仓库见&lt;a class=&#34;link&#34; href=&#34;https://git-scm.com/book/zh/v2/%e6%9c%8d%e5%8a%a1%e5%99%a8%e4%b8%8a%e7%9a%84-Git-%e5%8d%8f%e8%ae%ae&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;服务器上的Git-协议&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;编辑该仓库的post-receive文件。&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#!/bin/bash
+&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; /blog &lt;span class=&#34;o&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;git --work-tree&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;. --git-dir&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;.git fetch &lt;span class=&#34;o&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;git --work-tree&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;. --git-dir&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;.git reset --hard FETCH_HEAD &lt;span class=&#34;o&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&#34;se&#34;&gt;\
+&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;&lt;/span&gt;hugo
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;/blog为hugo项目的存放目录，此处git仓库对应的远程仓库为服务器上相应的裸仓库。&lt;/p&gt;
+&lt;p&gt;添加远程仓库：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;git remote add origin /var/lib/gitea/repos/yzy/blog.git
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;整个过程为 本地push至服务器裸仓库 &amp;ndash;&amp;gt; 服务器执行post-receive脚本，进入hugo项目目录，fetch远程仓库代码，更新hugo项目目录的相应文件 &amp;ndash;&amp;gt; 构建。&lt;/p&gt;
+&lt;p&gt;gitignore文件：&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code class=&#34;language-gitignore&#34; data-lang=&#34;gitignore&#34;&gt;/*
+!.gitignore
+!config.toml
+!/content
+!/static/
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;排除所有文件，添加白名单，跟踪hugo配置文件，content内的文章，static内的静态资源。&lt;/p&gt;
+&lt;p&gt;本地push时即可查看hugo构建信息：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;remote: Building sites … 
+remote:                    &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; ZH-HANS  
+remote: -------------------+----------
+remote:   Pages            &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;      &lt;span class=&#34;m&#34;&gt;17&lt;/span&gt;  
+remote:   Paginator pages  &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;       &lt;span class=&#34;m&#34;&gt;0&lt;/span&gt;  
+remote:   Non-page files   &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;       &lt;span class=&#34;m&#34;&gt;0&lt;/span&gt;  
+remote:   Static files     &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;       &lt;span class=&#34;m&#34;&gt;9&lt;/span&gt;  
+remote:   Processed images &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;       &lt;span class=&#34;m&#34;&gt;0&lt;/span&gt;  
+remote:   Aliases          &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;       &lt;span class=&#34;m&#34;&gt;5&lt;/span&gt;  
+remote:   Sitemaps         &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;       &lt;span class=&#34;m&#34;&gt;1&lt;/span&gt;  
+remote:   Cleaned          &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt;       &lt;span class=&#34;m&#34;&gt;0&lt;/span&gt;  
+remote: 
+remote: Total in &lt;span class=&#34;m&#34;&gt;40&lt;/span&gt; ms
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
+        </item>
+        
+    </channel>
+</rss>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>gcc on Yrvsyh&#39;s Blog</title>
+    <link>http://blog.yrvsyh.top/tags/gcc/</link>
+    <description>Recent content in gcc on Yrvsyh&#39;s Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Thu, 10 Dec 2020 00:00:00 +0000</lastBuildDate><atom:link href="http://blog.yrvsyh.top/tags/gcc/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>x64平台gcc内联汇编打印函数调用堆栈</title>
+      <link>http://blog.yrvsyh.top/p/x64%E5%B9%B3%E5%8F%B0gcc%E5%86%85%E8%81%94%E6%B1%87%E7%BC%96%E6%89%93%E5%8D%B0%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E5%A0%86%E6%A0%88/</link>
+      <pubDate>Thu, 10 Dec 2020 00:00:00 +0000</pubDate>
+      
+      <guid>http://blog.yrvsyh.top/p/x64%E5%B9%B3%E5%8F%B0gcc%E5%86%85%E8%81%94%E6%B1%87%E7%BC%96%E6%89%93%E5%8D%B0%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E5%A0%86%E6%A0%88/</guid>
+      <description>gcc内联汇编格式： asm ( assembler template : output operands /* optional */ : input operands /* optional */ : list of clobbered registers /* optional */ ); #include &amp;lt;stdio.h&amp;gt; void printStack() { unsigned long int *rbp = 0; unsigned long int *rsp = 0; // 当前rbp为上一层rsp-2，存放</description>
+    </item>
+    
+  </channel>
+</rss>

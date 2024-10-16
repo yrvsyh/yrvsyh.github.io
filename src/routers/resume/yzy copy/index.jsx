@@ -5,7 +5,7 @@ const Container = ({ children }) => {
   return <div className="h-full flex flex-col justify-between p-12 gap-3">{children}</div>
 }
 
-const App = () => {
+const Yzy = () => {
   return (
     <Container>
       <Header />
@@ -18,4 +18,4 @@ const App = () => {
   )
 }
 
-export default App
+export default Yzy

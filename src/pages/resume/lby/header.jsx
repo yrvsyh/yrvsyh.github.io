@@ -3,7 +3,7 @@ const Container = ({ children }) => {
 }
 
 const Name = ({ children }) => {
-  return <span className="text-2xl font-bold">{children}</span>
+  return <span className="mb-1 text-2xl font-bold">{children}</span>
 }
 
 const Line = ({ children }) => {
@@ -21,29 +21,31 @@ const Separator = () => {
 const Header = () => {
   return (
     <Container>
-      <Name>袁钟阳</Name>
-      {/* <div className="absolute right-0 h-full w-[86px] bg-gray-300" /> */}
+      <Name>刘白杨</Name>
+      <div className="absolute right-0 h-full w-[86px]">
+        <img src="/lby.jpg" alt="" className="w-full h-full object-cover" />
+      </div>
       <Line>
-        <Item>电话: 18672985705</Item>
+        <Item>电话: 15502708455</Item>
         <Separator />
-        <Item>邮箱: yuan_zhongyang@foxmail.com</Item>
+        <Item>邮箱: 491052323@qq.com</Item>
         <Separator />
         <Item>现居城市: 武汉</Item>
       </Line>
       <Line>
-        <Item>年龄: 24岁</Item>
+        <Item>年龄: 27岁</Item>
         <Separator />
-        <Item>性别: 男</Item>
+        <Item>性别: 女</Item>
       </Line>
       <Line>
-        <Item>当前状态: 在职</Item>
+        <Item>当前状态: 离职, 随时到岗</Item>
         <Separator />
         <Item>意向城市: 武汉</Item>
         <Separator />
-        <Item>求职意向: Nodejs/Golang/全栈</Item>
+        <Item>求职意向: 外贸业务员</Item>
       </Line>
       <Line>
-        <Item>期望薪资: 20k~22k</Item>
+        <Item>期望薪资: 6-8k</Item>
       </Line>
     </Container>
   )

@@ -9,9 +9,37 @@
   min-width: 0;
 }
 
-html,
-body,
 #root {
   width: 100%;
-  height: 100vh;
+  height: 100%;
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+  .a4 {
+    width: 794px;
+    height: 1123px;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+}
+
+html {
+  font-size: 16px;
+}
+
+.a4 {
+  width: 794px;
+  height: 1123px;
+  margin: 64px auto;
+  padding: 0;
+  overflow: none;
+  border-radius: 8px;
+  box-shadow: 2px 2px 16px rgba(0, 0, 0, 0.2);
 }

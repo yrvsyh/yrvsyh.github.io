@@ -81,5 +81,5 @@ Error generating stack: `+l.message+`
 
 ## Resume
 
-- [yzy]("https://yrvsyh.github.io/resume/yzy")
+- [yzy](https://yrvsyh.github.io/#/resume/yzy)
 `,nw=()=>h.jsx("div",{className:"markdown-body",children:h.jsx(Jk,{children:ew})}),tw=()=>h.jsxs(Kd,{children:[h.jsx(jt,{index:!0,element:h.jsx(nw,{})}),h.jsx(jt,{path:"resume/*",element:h.jsx(Tc,{})}),h.jsx(jt,{path:"resume/*",element:h.jsx(Tc,{})})]});Dd(document.getElementById("root")).render(h.jsx(F.StrictMode,{children:h.jsx(o1,{children:h.jsx(tw,{})})}));

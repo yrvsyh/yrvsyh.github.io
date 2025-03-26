@@ -43,7 +43,7 @@ export const Education = () => {
       <Title>教育经历</Title>
       <Group>
         <Line>
-          <B>湖北名族大学 </B>
+          <B>湖北民族大学 </B>
           <T>2015年09月 - 2019年07月</T>
         </Line>
         <Line>
